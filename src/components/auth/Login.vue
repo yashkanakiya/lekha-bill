@@ -4,21 +4,45 @@ import BaseButton from "../base-component/BaseButton.vue";
 import { useAuthStore } from "../../stores/authStore";
 import { useRouter } from "vue-router";
 import { ref } from "vue";
+import { useVuelidate } from "@vuelidate/core";
+import { required, helpers, minLength } from "@vuelidate/validators";
 
 const authStore = useAuthStore();
 const router = useRouter();
 
-const username = ref('');
-const password = ref('');
+const username = ref("");
+const password = ref("");
+
+const rules = {
+  username: {
+    required: helpers.withMessage("Username is required", required),
+  },
+  password: {
+    required: helpers.withMessage("Password is required", required),
+    minLength: helpers.withMessage(
+      "Password must be at least 4 characters",
+      minLength(4),
+    ),
+  },
+};
+
+const v$ = useVuelidate(rules, { username, password });
 
 function loginData() {
-  authStore.login({username: username.value, password: password.value})
-    .then(() => {
-      router.push("/");
-    })
-    .catch((error) => {
-      console.error("Login failed:", error);
-    });
+  v$.value.$touch();
+
+  if (v$.value.$invalid) {
+    return;
+  } else {
+    authStore
+      .login({ username: username.value, password: password.value })
+      .then(() => {
+        router.push("/");
+      })
+      .catch((error) => {
+        console.error("Login failed:", error);
+      });
+  }
 }
 </script>
 
@@ -46,15 +70,32 @@ function loginData() {
                 <label
                   for="username"
                   class="block text-sm/6 font-medium text-gray-900"
-                  >User name</label
                 >
+                  User name
+                </label>
+                <div
+                  v-show="v$.username.$errors.length"
+                  class="text-sm text-red-600 mt-1"
+                >
+                  <div>
+                    <span
+                      v-for="error in v$.username.$errors"
+                      :key="error.$uid"
+                    >
+                      *{{ error.$message }}
+                    </span>
+                  </div>
+                </div>
+
                 <div class="mt-2">
                   <BaseInput
                     v-model="username"
                     type="text"
                     name="username"
                     id="username"
-                    class="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6"
+                    class="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6"
+                    @blur="v$.username.$touch()"
+                    required
                   />
                 </div>
               </div>
@@ -82,14 +123,28 @@ function loginData() {
                   class="block text-sm/6 font-medium text-gray-900"
                   >Password</label
                 >
+                <div
+                  v-show="v$.password.$errors.length"
+                  class="text-sm text-red-600 mt-1"
+                >
+                  <div>
+                    <span
+                      v-for="error in v$.password.$errors"
+                      :key="error.$uid"
+                    >
+                      *{{ error.$message }}
+                    </span>
+                  </div>
+                </div>
                 <div class="mt-2">
                   <BaseInput
                     v-model="password"
                     type="password"
                     name="password"
                     id="password"
-                    autocomplete="current-password"
-                    class="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6"
+                    class="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6"
+                    @blur="v$.password.$touch()"
+                    required
                   />
                 </div>
               </div>
@@ -142,9 +197,9 @@ function loginData() {
 
               <div>
                 <BaseButton
-                type="submit"
-                name="Log in"
-                class="flex w-full justify-center rounded-md bg-indigo-600 px-3 py-1.5 text-sm/6 font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+                  type="submit"
+                  name="Log in"
+                  class="flex w-full justify-center rounded-md bg-indigo-600 px-3 py-1.5 text-sm/6 font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
                 />
               </div>
             </form>
