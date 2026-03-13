@@ -4,6 +4,7 @@ import Login from "../components/auth/Login.vue";
 import ListProducts from "../components/ListProducts.vue";
 import AddProduct from "../components/AddProduct.vue";
 import ViewProduct from "../components/ViewProduct.vue";
+import Sidebar from "../layouts/Sidebar.vue";
 
 const routes = [
   {
@@ -13,27 +14,37 @@ const routes = [
   },
   {
     path: "/",
-    name: "ListProducts",
-    component: ListProducts,
-    meta: { requiresAuth: true },
-  },
-  {
-    path: "/add-product",
-    name: "AddProduct",
-    component: AddProduct,
-    meta: { requiresAuth: true },
-  },
-  {
-    path: "/edit-product/:id",
-    name: "EditProduct",
-    component: AddProduct,
-    meta: { requiresAuth: true },
-  },
-  {
-    path: "/view-product/:id",
-    name: "ViewProduct",
-    component: ViewProduct,
-    meta: { requiresAuth: true },
+    component: Sidebar,
+    children: [
+      {
+        path: "/",
+        redirect: "/list-products",
+      },
+      {
+        path: "/list-products",
+        name: "ListProducts",
+        component: ListProducts,
+        meta: { requiresAuth: true },
+      },
+      {
+        path: "/add-product",
+        name: "AddProduct",
+        component: AddProduct,
+        meta: { requiresAuth: true },
+      },
+      {
+        path: "/edit-product/:id",
+        name: "EditProduct",
+        component: AddProduct,
+        meta: { requiresAuth: true },
+      },
+      {
+        path: "/view-product/:id",
+        name: "ViewProduct",
+        component: ViewProduct,
+        meta: { requiresAuth: true },
+      },
+    ],
   },
 ];
 

@@ -1,8 +1,11 @@
 <script setup lang="ts">
+import BaseContainer from "./components/base-component/BaseContainer.vue";
 </script>
 
 <template>
-  <router-view />
+    <BaseContainer>
+      <router-view />
+    </BaseContainer>
 </template>
 
 
