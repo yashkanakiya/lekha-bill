@@ -1,9 +1,10 @@
 import { createMemoryHistory, createRouter } from "vue-router";
 
 import Login from "../components/auth/Login.vue";
-import ListProducts from "../components/ListProducts.vue";
-import AddProduct from "../components/AddProduct.vue";
-import ViewProduct from "../components/ViewProduct.vue";
+import Dashboard from "../components/dashboard/Index.vue";
+import Customers from "../components/customers/Index.vue";
+import CreateCustomer from "../components/customers/CreateCustomer.vue";
+import ViewCustomer from "../components/customers/ViewCustomer.vue";
 import Sidebar from "../layouts/Sidebar.vue";
 
 const routes = [
@@ -18,30 +19,35 @@ const routes = [
     children: [
       {
         path: "/",
-        redirect: "/list-products",
+        redirect: "/dashboard",
       },
       {
-        path: "/list-products",
-        name: "ListProducts",
-        component: ListProducts,
+        path: "/dashboard",
+        name: "Dashboard",
+        component: Dashboard,
+      },
+      {
+        path: "/customers",
+        name: "Customers",
+        component: Customers,
         meta: { requiresAuth: true },
       },
       {
-        path: "/add-product",
-        name: "AddProduct",
-        component: AddProduct,
+        path: "/create-customer",
+        name: "Create-Customer",
+        component: CreateCustomer,
         meta: { requiresAuth: true },
       },
       {
-        path: "/edit-product/:id",
-        name: "EditProduct",
-        component: AddProduct,
+        path: "/edit-customer/:id",
+        name: "EditCustomer",
+        component: CreateCustomer,
         meta: { requiresAuth: true },
       },
       {
-        path: "/view-product/:id",
-        name: "ViewProduct",
-        component: ViewProduct,
+        path: "/view-customer/:id",
+        name: "ViewCustomer",
+        component: ViewCustomer,
         meta: { requiresAuth: true },
       },
     ],

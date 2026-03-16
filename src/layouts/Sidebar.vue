@@ -25,7 +25,7 @@ const activeItem = ref("Dashboard");
 const isSidebarOpen = ref(false);
 
 const navigation = [
-  { name: "Dashboard", to: "/list-products", icon: HomeIcon },
+  { name: "Dashboard", to: "/dashboard", icon: HomeIcon },
   {
     name: "Teams",
     icon: UsersIcon,
@@ -45,7 +45,7 @@ const navigation = [
       { name: "New Customer Portal", to: "#" },
     ],
   },
-  { name: "Calendar", to: "/add-product", icon: CalendarIcon },
+  { name: "Customers", to: "/customers", icon: UsersIcon },
   { name: "Documents", to: "#", icon: DocumentDuplicateIcon },
   { name: "Reports", to: "#", icon: ChartPieIcon },
 ];
@@ -192,7 +192,7 @@ function handleLogout() {
            <!-- User profile section -->
           <li class="-mx-6 mt-auto">
             <router-link
-              to="/profile"
+              to="/#"
               @click="setActiveItem('Profile')"
               class="flex items-center gap-x-4 px-6 py-3 text-sm/6 font-semibold text-gray-900 hover:bg-gray-50"
             >
