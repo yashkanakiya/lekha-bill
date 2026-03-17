@@ -1,13 +1,20 @@
 <script setup lang="ts">
-import { computed, onMounted } from "vue";
+import { computed, onMounted, ref } from "vue";
 import { useCustomerStore } from "../../stores/customerStore";
 import { useRouter } from "vue-router";
 
-import Button from 'primevue/button';
-// import DataTable from 'primevue/datatable';
-// import Column from 'primevue/column';
+import BaseTable from "../base-component/BaseTable.vue";
+import Button from "primevue/button";
+import Card from "primevue/card";
+import DataTable from "primevue/datatable";
+import Column from "primevue/column";
+import Menu from 'primevue/menu';
 
 const customerStore = useCustomerStore();
+const router = useRouter();
+
+const menu = ref();
+const selectedRow = ref(null);
 
 onMounted(() => {
   customerStore.fetchCustomers();
@@ -15,10 +22,37 @@ onMounted(() => {
 
 const customers = computed(() => customerStore.customers);
 
-const router = useRouter();
+const loading = computed(() => customerStore.customers.length === 0);
 
-function onClickEvent() {
+const items = computed(() => {
+  if (!selectedRow.value) return [];
+
+  return [
+    {
+      label: "View",
+      icon: "pi pi-eye",
+      command: () => router.push(`/view-customer/${selectedRow.value.id}`)
+    },
+    {
+      label: "Edit",
+      icon: "pi pi-pencil",
+      command: () => router.push(`/edit-customer/${selectedRow.value.id}`)
+    },
+    {
+      label: "Delete",
+      icon: "pi pi-trash",
+      command: () => customerStore.deleteCustomer(selectedRow.value.id)
+    }
+  ];
+});
+
+function onCreateEvent() {
   router.push("/create-customer");
+}
+
+const toggle = (event: MouseEvent, row: any) => {
+  selectedRow.value = row;
+  menu.value.toggle(event);
 }
 </script>
 
@@ -28,64 +62,54 @@ function onClickEvent() {
 
     <Button
       label="Create Customer"
-      class="mb-4 px-4 py-2 bg-green-500! text-white rounded hover:bg-green-600! focus:outline-none"
-      @click="onClickEvent()"
+      icon="pi pi-plus"
+      class="mb-4 p-4 bg-blue-500! text-white rounded hover:bg-blue-600! focus:outline-none focus:ring-1! focus:ring-blue-500!"
+      @click="onCreateEvent()"
     />
-
   </div>
-
-     <!-- <DataTable :value="customers" paginator :rows="5" :rowsPerPageOptions="[5, 10, 20, 50]" tableStyle="min-width: 50rem">
-        <Column field="name" header="Name" style="width: 25%"></Column>
+  <Card>
+    <template #content>
+      <div  v-if="customers.length">
+      <DataTable
+        :value="customers"
+        stripedRows
+        :loading="loading"
+        paginator
+        :rows="10"
+        :rowsPerPageOptions="[10, 20, 50]"
+        tableStyle="min-width: 50rem"
+        paginatorTemplate="RowsPerPageDropdown FirstPageLink PrevPageLink CurrentPageReport NextPageLink LastPageLink"
+        currentPageReportTemplate="{first} to {last} of {totalRecords}"
+      >
+        <Column field="name" header="Name" style="width: 25%">
+          <template #body="{data}">
+            <router-link
+            :to="{ path: `/view-customer/${data.id}` }"
+            class="text-blue-600 cursor-pointer"
+            >
+            {{data.name}}
+          </router-link>
+          </template>
+        </Column>
         <Column field="email" header="Email" style="width: 25%"></Column>
         <Column field="phone" header="Phone" style="width: 25%"></Column>
-        <Column field="action" header="Actions" style="width: 25%"></Column>
-    </DataTable> -->
-  <table class="min-w-full bg-white border border-gray-200">
-    <thead>
-      <tr>
-        <th class="py-2 px-4 border-b">ID</th>
-        <th class="py-2 px-4 border-b">Name</th>
-        <th class="py-2 px-4 border-b">Email</th>
-        <th class="py-2 px-4 border-b">Phone</th>
-        <th class="py-2 px-4 border-b">Actions</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr
-        v-for="customer in customers"
-        :key="customer.id"
-        class="hover:bg-gray-100"
-      >
-        <td class="py-2 px-4 border-b">{{ customer.id }}</td>
-        <td class="py-2 px-4 border-b">{{ customer.name }}</td>
-        <td class="py-2 px-4 border-b">{{ customer.email }}</td>
-        <td class="py-2 px-4 border-b">{{ customer.phone }}</td>
-        <td class="py-2 px-4 border-b">
-          <div class="flex items-center justify-end gap-2">
-            <Button
-              label="View"
+        <Column field="action" header="Actions" style="width: 25%">
+          <template #body="{ data }">
+            <i
+              class="pi pi-ellipsis-h cursor-pointer"
+              rounded
               variant="outlined"
-              severity="info"
-              size="small"
-              @click="() => router.push(`/view-customer/${customer.id}`)"
-            />
-            <Button
-              label="Edit"
-              variant="outlined"
-              severity="success"
-              size="small"
-              @click="() => router.push(`/edit-customer/${customer.id}`)"
-            />
-            <Button
-              label="Delete"
-              variant="outlined"
-              severity="danger"
-              size="small"
-              @click="() => customerStore.deleteCustomer(customer.id)"
-            />
-          </div>
-        </td>
-      </tr>
-    </tbody>
-  </table>
+              aria-label="Filter"
+              @click="(e) => toggle(e, data)"
+            ></i>
+            </template>
+          </Column>
+        </DataTable>
+        <Menu ref="menu" :model="items" :popup="true" />
+      </div>
+      <div v-else>
+        No data
+      </div>
+    </template>
+  </Card>
 </template>

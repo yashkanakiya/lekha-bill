@@ -25,7 +25,7 @@ export const useCustomerStore = defineStore("customer", {
         axios
         .post("http://127.0.0.1:8000/api/customers", params)
         .then((response) => {
-            this.customers.unshift(response.data);
+            this.customers.push(response.data);
         })
         .catch((error) => {
             console.error("Error adding customer:", error);

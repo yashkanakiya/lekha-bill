@@ -2,7 +2,9 @@
 import { useRouter } from "vue-router";
 import { useCustomerStore } from "../../stores/customerStore";
 import { computed, onMounted } from "vue";
-import BaseCard from "../base-component/BaseCard.vue";
+
+import Button from 'primevue/button';
+import Card from "primevue/card";
 
 const router = useRouter();
 const customerStore = useCustomerStore();
@@ -26,20 +28,24 @@ async function fetchData() {
 
 </script>
 <template>
-    <div class="container mx-auto p-4">
-       <BaseCard>
-        <h1 class="text-2xl font-bold mb-4">Customer Details</h1>
-        <p><strong>ID:</strong> {{ customerStore.customer?.id }}</p>
-        <p><strong>Name:</strong> {{ customerStore.customer?.name }}</p>
-        <p><strong>Email:</strong> {{ customerStore.customer?.email }}</p>
-        <p><strong>Phone:</strong> {{ customerStore.customer?.phone }}</p>
-        <p><strong>Address:</strong> {{ customerStore.customer?.address }}</p>
-            <button
-            class="mt-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition duration-300"
-            @click="router.push('/customers')"
-            >
-            Back to Customer List
-            </button>
-        </BaseCard>
-    </div>
+  <div class="flex items-center justify-between mb-4">
+    <h1 class="text-2xl font-bold mb-4">Customer Details</h1>
+  </div>
+        <Card>
+          <template #content>
+            <div class="container mx-auto p-4">
+            <p><strong>ID:</strong> {{ customerStore.customer?.id }}</p>
+            <p><strong>Name:</strong> {{ customerStore.customer?.name }}</p>
+            <p><strong>Email:</strong> {{ customerStore.customer?.email }}</p>
+            <p><strong>Phone:</strong> {{ customerStore.customer?.phone }}</p>
+            <p><strong>Address:</strong> {{ customerStore.customer?.address }}</p>
+                <Button
+                icon="pi pi-arrow-left"
+                label="View Customers"
+                class="mt-4 px-4 py-2 bg-blue-500! text-white rounded hover:bg-blue-600! transition duration-300"
+                @click="router.push('/customers')"
+                />
+              </div>
+          </template>
+        </Card>
 </template>
