@@ -15,6 +15,9 @@ const router = useRouter();
 const confirmPassword = ref("");
 
 const rules = {
+  name: {
+    required: helpers.withMessage("name is required", required),
+  },
   email: {
     required: helpers.withMessage("email is required", required),
     email: helpers.withMessage("Invalid email format", (value) =>
@@ -38,6 +41,7 @@ const rules = {
 };
 
 const v$ = useVuelidate(rules, {
+  name: computed(() => authStore.userData.name),
   email: computed(() => authStore.userData.email),
   password: computed(() => authStore.userData.password),
   confirmPassword,
@@ -80,9 +84,35 @@ function registerHandle() {
           </h2>
         </div>
         <form class="space-y-6" @submit.prevent="registerHandle">
+           <div>
+            <label class="block py-2 text-sm font-bold text-gray-700 mb-1"
+              >Enter Name</label
+            >
+            <InputText
+              v-model="authStore.userData.name"
+              type="text"
+              class="w-full px-3 py-2 border rounded focus:outline-none focus:ring-1! focus:ring-blue-500!"
+              placeholder="Enter name"
+              required
+              :invalid="v$.name.$error"
+              @blur="v$.name.$touch()"
+            />
+            <div
+              v-show="v$.name.$errors.length"
+              class="text-red-500 text-sm mb-1 flex flex-col"
+            >
+              <span
+                v-for="error in v$.name.$errors"
+                :key="error.$message"
+              >
+                * {{ error.$message }}
+              </span>
+            </div>
+          </div>
+
           <div>
             <label class="block py-2 text-sm font-bold text-gray-700 mb-1"
-              >Enter your Email</label
+              >Enter Email</label
             >
             <InputText
               v-model="authStore.userData.email"

@@ -1,16 +1,17 @@
 <script setup lang="ts">
-// import BaseInput from "../base-component/BaseInput.vue";
-// import BaseButton from "../base-component/BaseButton.vue";
+
 import { useAuthStore } from "../../stores/authStore";
 import { useRouter } from "vue-router";
-import { ref, computed  } from "vue";
+import { ref, computed } from "vue";
 import { useVuelidate } from "@vuelidate/core";
 import { required, helpers, minLength, email } from "@vuelidate/validators";
+import { useToast } from "primevue/usetoast";
 
 import InputText from "primevue/inputtext";
 import Password from "primevue/password";
 import Button from "primevue/button";
 
+const toast = useToast();
 const authStore = useAuthStore();
 const router = useRouter();
 
@@ -35,20 +36,29 @@ const v$ = useVuelidate(rules, {
   password: computed(() => authStore.userData.password),
 });
 
-function loginHandle() {
+async function loginHandle() {
   v$.value.$touch();
+  if (v$.value.$invalid) return;
 
-  if (v$.value.$invalid) {
-    return;
-  } else {
-    authStore
-      .login()
-      .then(() => {
-        router.push("/");
-      })
-      .catch((error) => {
-        console.error("Login failed:", error);
-      });
+  try {
+    const res = await authStore.login();
+
+    router.push("/");
+    toast.add({
+      severity: "success",
+      summary: "Login",
+      detail: res?.data?.message || "Login Successfully",
+      life: 3000,
+    });
+
+  } catch (error) {
+    toast.add({
+      severity: "error",
+      summary: "Error",
+      detail:
+        error?.response?.data?.message || "Login failed",
+      life: 3000,
+    });
   }
 }
 </script>
@@ -211,6 +221,7 @@ function loginHandle() {
               <div>
                 <Button
                   type="submit"
+                  :disabled="authStore.isFetching"
                   label="Log in"
                   class="flex w-full justify-center rounded-md bg-indigo-600! px-3 py-1.5 text-sm/6 font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline-offset-2! focus-visible:outline-indigo-600!"
                 />

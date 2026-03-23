@@ -15,11 +15,14 @@ import {
   HomeIcon,
   UsersIcon,
 } from "@heroicons/vue/24/outline";
-import BaseButton from "../components/base-component/BaseButton.vue";
 import { useAuthStore } from "../stores/authStore";
+import { useToast } from "primevue/usetoast";
+
+import Button from "primevue/button";
 
 const router = useRouter();
 const authStore = useAuthStore();
+const toast = useToast();
 
 const activeItem = ref("Dashboard");
 const isSidebarOpen = ref(false);
@@ -69,10 +72,18 @@ const closeSidebar = () => {
   isSidebarOpen.value = false;
 };
 
-function handleLogout() {
-  authStore.logout();
-  router.push("/login");
+async function handleLogout() {
+  await authStore.logout();
+  await authStore.resetUserData()
+  await router.replace("/login");
+   toast.add({
+      severity: "success",
+      summary: "Log out",
+      detail: "Logout Successfully",
+      life: 3000,
+    });
 }
+
 </script>
 
 <template>
@@ -205,9 +216,10 @@ function handleLogout() {
               <span aria-hidden="true">Tom Cook</span>
             </router-link>
             
-            <BaseButton
-              name="Logout"
-              customClass="w-full mb-4 px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600 transition duration-300"
+            <Button
+              label="Logout"
+              :disabled = "authStore.isFetching"
+              class="flex w-full justify-center rounded-md bg-red-600! px-3 py-1.5 text-sm/6 font-semibold text-white shadow-sm hover:bg-red-500! focus-visible:outline-offset-2 focus-visible:outline-red-600!"
               @click="handleLogout"
             />
           </li>

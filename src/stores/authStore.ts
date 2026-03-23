@@ -4,7 +4,10 @@ import api, { initCSRF } from "../plugins/axios";
 export const useAuthStore = defineStore("auth", {
   state: () => ({
     user: null,
+    isFetching: false,
+    checked: false,
     userData: {
+      name: "",
       email: "",
       password: "",
     },
@@ -18,7 +21,9 @@ export const useAuthStore = defineStore("auth", {
 
     // Reset userData
     resetUserData() {
+      this.user = null;
       this.userData = {
+        name: "",
         email: "",
         password: "",
       };
@@ -26,6 +31,7 @@ export const useAuthStore = defineStore("auth", {
 
     // LOGIN
     async login() {
+      this.isFetching = true;
       try {
         await initCSRF(); //  required for Sanctum
 
@@ -33,27 +39,31 @@ export const useAuthStore = defineStore("auth", {
           email: this.userData.email,
           password: this.userData.password,
         });
-
+        this.isFetching = false;
         // fetch user after login
         await this.fetchUser();
-        this.resetUserData();
       } catch (error) {
         console.error("Login failed:", error);
+        this.isFetching = false;
         throw error;
       }
     },
 
     // REGISTER
     async register() {
+      this.isFetching = true;
       try {
         await initCSRF();
 
         await api.post("/register", {
+          name: this.userData.name,
           email: this.userData.email,
           password: this.userData.password,
         });
+        this.isFetching = false;
       } catch (error) {
         console.error("Register failed:", error);
+        this.isFetching = false;
         throw error;
       }
     },
@@ -70,10 +80,15 @@ export const useAuthStore = defineStore("auth", {
 
     // LOGOUT
     async logout() {
+      this.isFetching = true;
       try {
         await api.post("/logout");
-      } finally {
         this.user = null;
+        this.isFetching = false;
+      } catch (error) {
+        console.error("logout failed:", error);
+        this.isFetching = false;
+        throw error;
       }
     },
   },

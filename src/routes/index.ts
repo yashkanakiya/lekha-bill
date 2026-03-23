@@ -1,5 +1,7 @@
 import { createMemoryHistory, createRouter } from "vue-router";
 
+import { useAuthStore } from "../stores/authStore";
+
 import Login from "../components/auth/Login.vue";
 import Register from "../components/auth/Register.vue";
 
@@ -23,6 +25,7 @@ const routes = [
   {
     path: "/",
     component: Sidebar,
+    meta: { requiresAuth: true },
     children: [
       {
         path: "/",
@@ -37,25 +40,21 @@ const routes = [
         path: "/customers",
         name: "Customers",
         component: Customers,
-        meta: { requiresAuth: true },
       },
       {
         path: "/create-customer",
         name: "Create-Customer",
         component: CreateCustomer,
-        meta: { requiresAuth: true },
       },
       {
         path: "/edit-customer/:id",
         name: "EditCustomer",
         component: CreateCustomer,
-        meta: { requiresAuth: true },
       },
       {
         path: "/view-customer/:id",
         name: "ViewCustomer",
         component: ViewCustomer,
-        meta: { requiresAuth: true },
       },
     ],
   },
@@ -66,14 +65,49 @@ const router = createRouter({
   routes,
 });
 
-router.beforeEach((to, from, next) => {
-  const token = localStorage.getItem("token");
+// router.beforeEach((to, from, next) => {
+//   const authStore = useAuthStore();
 
-  if (to.meta.requiresAuth && !token) {
-    next("/login");
-  } else {
-    next();
+//   const isLoggedIn = !!authStore.user;
+
+//   if (to.matched.some((r) => r.meta.requiresAuth) && !isLoggedIn) {
+//     authStore.fetchUser();
+//     return next("/login");
+//   }
+
+//   if (to.path === "/login" && isLoggedIn) {
+//     return next("/dashboard");
+//   }
+
+//   next();
+// });
+
+router.beforeEach(async (to, from, next) => {
+  const authStore = useAuthStore();
+
+  // Only call ONCE
+  if (!authStore.checked) {
+    try {
+      await authStore.fetchUser();
+    } catch (e) {
+      console.log(e);
+    } finally {
+      authStore.checked = true; // mark as checked
+    }
   }
+
+  const isLoggedIn = !!authStore.user;
+
+  if (to.matched.some((record) => record.meta.requiresAuth) && !isLoggedIn) {
+    return next("/login");
+  }
+
+  if ((to.path === "/login" || to.path === "/register") && isLoggedIn) {
+    return next("/dashboard");
+  }
+
+  next();
 });
+
 
 export { router };
