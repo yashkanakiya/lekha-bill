@@ -1,42 +1,79 @@
 import { defineStore } from "pinia";
-import axios from "axios";
+import api, { initCSRF } from "../plugins/axios";
 
 export const useAuthStore = defineStore("auth", {
   state: () => ({
     user: null,
-    token: null,
+    userData: {
+      email: "",
+      password: "",
+    },
   }),
 
   actions: {
-    async login(credentials) {
+    // Update Userdata
+    updateUserData(data) {
+      this.userData = { ...this.userData, ...data };
+    },
+
+    // Reset userData
+    resetUserData() {
+      this.userData = {
+        email: "",
+        password: "",
+      };
+    },
+
+    // LOGIN
+    async login() {
       try {
-        const res = await axios.post(
-          "https://dummyjson.com/auth/login",
-          credentials,
-        );
+        await initCSRF(); //  required for Sanctum
 
-        this.user = res.data;
-        this.token = res.data.token;
+        await api.post("/login", {
+          email: this.userData.email,
+          password: this.userData.password,
+        });
 
-        localStorage.setItem("token", res.data.token);
-
-        return res;
+        // fetch user after login
+        await this.fetchUser();
+        this.resetUserData();
       } catch (error) {
         console.error("Login failed:", error);
         throw error;
       }
     },
 
-    logout() {
-      this.user = null;
-      this.token = null;
-      localStorage.removeItem("token");
+    // REGISTER
+    async register() {
+      try {
+        await initCSRF();
+
+        await api.post("/register", {
+          email: this.userData.email,
+          password: this.userData.password,
+        });
+      } catch (error) {
+        console.error("Register failed:", error);
+        throw error;
+      }
     },
 
-    checkAuth() {
-      const token = localStorage.getItem("token");
-      if (token) {
-        this.token = token;
+    // GET USER
+    async fetchUser() {
+      try {
+        const res = await api.get("/user");
+        this.user = res.data;
+      } catch (error) {
+        this.user = null;
+      }
+    },
+
+    // LOGOUT
+    async logout() {
+      try {
+        await api.post("/logout");
+      } finally {
+        this.user = null;
       }
     },
   },

@@ -12,7 +12,7 @@ export const useCustomerStore = defineStore("customer", {
   actions: {
     fetchCustomers() {
       axios
-        .get("http://127.0.0.1:8000/api/customers")
+        .get("/api/customers")
         .then((response) => {
           this.customers = response.data;
         })
@@ -23,7 +23,7 @@ export const useCustomerStore = defineStore("customer", {
 
     addCustomer(params){
         axios
-        .post("http://127.0.0.1:8000/api/customers", params)
+        .post("/api/customers", params)
         .then((response) => {
             this.customers.push(response.data);
         })
@@ -34,7 +34,7 @@ export const useCustomerStore = defineStore("customer", {
 
     updateCustomer(id, params){
         axios
-        .put(`http://127.0.0.1:8000/api/customers/${id}`, params)
+        .put(`/api/customers/${id}`, params)
         .then((response) => {
             const index = this.customers.findIndex((c) => c.id === id);
             if (index !== -1) this.customers[index] = response.data;
@@ -46,7 +46,7 @@ export const useCustomerStore = defineStore("customer", {
 
       async fetchCustomer(id) {
         const response = await axios
-          .get(`http://127.0.0.1:8000/api/customers/${id}`)
+          .get(`/api/customers/${id}`)
           .then((response) => {
             this.customer = response.data;
             return response.data;
@@ -59,7 +59,7 @@ export const useCustomerStore = defineStore("customer", {
 
       deleteCustomer(id) {
         axios
-          .delete(`http://127.0.0.1:8000/api/customers/${id}`)
+          .delete(`/api/customers/${id}`)
           .then(() => {
             this.customers = this.customers.filter((c) => c.id !== id);
           })

@@ -1,41 +1,48 @@
 <script setup lang="ts">
-import BaseInput from "../base-component/BaseInput.vue";
-import BaseButton from "../base-component/BaseButton.vue";
+// import BaseInput from "../base-component/BaseInput.vue";
+// import BaseButton from "../base-component/BaseButton.vue";
 import { useAuthStore } from "../../stores/authStore";
 import { useRouter } from "vue-router";
-import { ref } from "vue";
+import { ref, computed  } from "vue";
 import { useVuelidate } from "@vuelidate/core";
-import { required, helpers, minLength } from "@vuelidate/validators";
+import { required, helpers, minLength, email } from "@vuelidate/validators";
+
+import InputText from "primevue/inputtext";
+import Password from "primevue/password";
+import Button from "primevue/button";
 
 const authStore = useAuthStore();
 const router = useRouter();
 
-const username = ref("");
-const password = ref("");
-
 const rules = {
-  username: {
-    required: helpers.withMessage("Username is required", required),
+  email: {
+    required: helpers.withMessage("email is required", required),
+    email: helpers.withMessage("Invalid email format", (value) =>
+      /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value),
+    ),
   },
   password: {
     required: helpers.withMessage("Password is required", required),
     minLength: helpers.withMessage(
       "Password must be at least 4 characters",
-      minLength(4),
+      minLength(6),
     ),
   },
 };
 
-const v$ = useVuelidate(rules, { username, password });
+const v$ = useVuelidate(rules, {
+  email: computed(() => authStore.userData.email),
+  password: computed(() => authStore.userData.password),
+});
 
-function loginData() {
+function loginHandle() {
   v$.value.$touch();
 
   if (v$.value.$invalid) {
     return;
   } else {
     authStore
-      .login({ username: username.value, password: password.value })
+      .login()
       .then(() => {
         router.push("/");
       })
@@ -65,21 +72,41 @@ function loginData() {
 
         <div class="mt-10">
           <div>
-            <form @submit.prevent="loginData" class="space-y-6">
+            <form @submit.prevent="loginHandle" class="space-y-6">
               <div>
-                <label
-                  for="username"
+                <label class="block py-2 text-sm font-bold text-gray-700 mb-1"
+                  >Email</label
+                >
+                <InputText
+                  v-model="authStore.userData.email"
+                  class="w-full px-3 py-2 border rounded focus:outline-none focus:ring-1! focus:ring-blue-500!"
+                  placeholder="Enter your email"
+                  type="email"
+                  required
+                  :invalid="v$.email.$error"
+                  @blur="v$.email.$touch()"
+                />
+                <div
+                  v-show="v$.email.$errors.length"
+                  class="text-red-500 text-sm mb-1 flex flex-col"
+                >
+                  <span v-for="error in v$.email.$errors" :key="error.$message">
+                    * {{ error.$message }}
+                  </span>
+                </div>
+                <!-- <label
+                  for="email"
                   class="block text-sm/6 font-medium text-gray-900"
                 >
                   User name
                 </label>
                 <div
-                  v-show="v$.username.$errors.length"
+                  v-show="v$.email.$errors.length"
                   class="text-sm text-red-600 mt-1"
                 >
                   <div>
                     <span
-                      v-for="error in v$.username.$errors"
+                      v-for="error in v$.email.$errors"
                       :key="error.$uid"
                     >
                       *{{ error.$message }}
@@ -89,63 +116,41 @@ function loginData() {
 
                 <div class="mt-2">
                   <BaseInput
-                    v-model="username"
+                    v-model="email"
                     type="text"
-                    name="username"
-                    id="username"
-                    class="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6"
-                    @blur="v$.username.$touch()"
-                    required
-                  />
-                </div>
-              </div>
-
-              <!-- <div>
-                <label
-                  for="email"
-                  class="block text-sm/6 font-medium text-gray-900"
-                  >Email</label
-                >
-                <div class="mt-2">
-                  <BaseInput
-                    v-model="authStore.email"
-                    type="email"
                     name="email"
                     id="email"
-                    class="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6"
-                  />
-                </div>
-              </div> -->
-
-              <div>
-                <label
-                  for="password"
-                  class="block text-sm/6 font-medium text-gray-900"
-                  >Password</label
-                >
-                <div
-                  v-show="v$.password.$errors.length"
-                  class="text-sm text-red-600 mt-1"
-                >
-                  <div>
-                    <span
-                      v-for="error in v$.password.$errors"
-                      :key="error.$uid"
-                    >
-                      *{{ error.$message }}
-                    </span>
-                  </div>
-                </div>
-                <div class="mt-2">
-                  <BaseInput
-                    v-model="password"
-                    type="password"
-                    name="password"
-                    id="password"
                     class="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6"
-                    @blur="v$.password.$touch()"
+                    @blur="v$.email.$touch()"
                     required
                   />
+                </div> -->
+              </div>
+
+              <div>
+                <label class="block py-2 text-sm font-bold text-gray-700 mb-1"
+                  >Password</label
+                >
+                <Password
+                  v-model="authStore.userData.password"
+                  fluid
+                  placeholder="Enter your password"
+                  type="password"
+                  toggleMask
+                  required
+                  :invalid="v$.password.$error"
+                  @blur="v$.password.$touch()"
+                />
+                <div
+                  v-show="v$.password.$errors.length"
+                  class="text-red-500 text-sm mb-1 flex flex-col"
+                >
+                  <span
+                    v-for="error in v$.password.$errors"
+                    :key="error.$message"
+                  >
+                    * {{ error.$message }}
+                  </span>
                 </div>
               </div>
 
@@ -187,6 +192,14 @@ function loginData() {
                 </div> -->
 
                 <div class="text-sm/6">
+                  <router-link
+                    :to="{ path: `/register` }"
+                    class="font-semibold text-indigo-600 hover:text-indigo-500"
+                    >New? click on Register!</router-link
+                  >
+                </div>
+
+                <div class="text-sm/6">
                   <a
                     href="#"
                     class="font-semibold text-indigo-600 hover:text-indigo-500"
@@ -196,10 +209,10 @@ function loginData() {
               </div>
 
               <div>
-                <BaseButton
+                <Button
                   type="submit"
-                  name="Log in"
-                  class="flex w-full justify-center rounded-md bg-indigo-600 px-3 py-1.5 text-sm/6 font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+                  label="Log in"
+                  class="flex w-full justify-center rounded-md bg-indigo-600! px-3 py-1.5 text-sm/6 font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline-offset-2! focus-visible:outline-indigo-600!"
                 />
               </div>
             </form>

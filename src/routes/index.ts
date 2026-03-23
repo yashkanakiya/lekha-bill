@@ -1,6 +1,8 @@
 import { createMemoryHistory, createRouter } from "vue-router";
 
 import Login from "../components/auth/Login.vue";
+import Register from "../components/auth/Register.vue";
+
 import Dashboard from "../components/dashboard/Index.vue";
 import Customers from "../components/customers/Index.vue";
 import CreateCustomer from "../components/customers/CreateCustomer.vue";
@@ -12,6 +14,11 @@ const routes = [
     path: "/login",
     name: "Login",
     component: Login,
+  },
+  {
+    path: "/register",
+    name: "Register",
+    component: Register,
   },
   {
     path: "/",
