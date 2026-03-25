@@ -1,7 +1,7 @@
 template
 <script setup lang="ts">
 import { computed, onMounted, ref } from "vue";
-import { useCustomerStore } from "../../stores/customerStore";
+import { useItemStore } from "../../stores/itemStore";
 import { useRouter } from "vue-router";
 
 import BaseTable from "../base-component/BaseTable.vue";
@@ -14,7 +14,7 @@ import Dialog from "primevue/dialog";
 import { useToast } from "primevue/usetoast";
 
 
-const customerStore = useCustomerStore();
+const itemStore = useItemStore();
 const router = useRouter();
 const toast = useToast();
 
@@ -23,26 +23,26 @@ const selectedRow = ref(null);
 const showDeleteDialog = ref(false);
 
 onMounted(() => {
-  customerStore.fetchCustomers();
+  itemStore.fetchItems();
 });
 
-const customers = computed(() => customerStore.customers);
+const items = computed(() => itemStore.items);
 
-const loading = computed(() => customerStore.customers.length === 0);
+const loading = computed(() => itemStore.items.length === 0);
 
 const itemsOptions = computed(() => {
   if (!selectedRow.value) return [];
 
   return [
-    {
-      label: "View",
-      icon: "pi pi-eye",
-      command: () => router.push(`/view-customer/${selectedRow.value.id}`),
-    },
+    // {
+    //   label: "View",
+    //   icon: "pi pi-eye",
+    //   command: () => router.push(`/view-item/${selectedRow.value.id}`),
+    // },
     {
       label: "Edit",
       icon: "pi pi-pencil",
-      command: () => router.push(`/edit-customer/${selectedRow.value.id}`),
+      command: () => router.push(`/edit-item/${selectedRow.value.id}`),
     },
     {
       label: "Delete",
@@ -55,20 +55,20 @@ const itemsOptions = computed(() => {
 });
 
 function onCreateEvent() {
-  router.push("/create-customer");
+  router.push("/create-item");
 }
 
 const confirmDelete = async () => {
   if (!selectedRow.value) return;
 
-  await customerStore.deleteCustomer(selectedRow.value.id);
+  await itemStore.deleteItem(selectedRow.value.id);
 
   showDeleteDialog.value = false;
 
   toast.add({
     severity: "success",
-    summary: "Customer Deleted",
-    detail: "Customer Deleted Successfully",
+    summary: "Item Deleted",
+    detail: "Item Deleted Successfully",
     life: 3000,
   });
 };
@@ -81,10 +81,10 @@ const toggle = (event: MouseEvent, row: any) => {
 
 <template>
   <div class="flex items-center justify-between mb-4">
-    <h1 class="text-2xl font-bold mb-4">Customer List</h1>
+    <h1 class="text-2xl font-bold mb-4">Item List</h1>
 
     <Button
-      label="Create Customer"
+      label="Create Item"
       icon="pi pi-plus"
       class="mb-4 p-4 bg-blue-500! text-white rounded hover:bg-blue-600! focus:outline-none focus:ring-1! focus:ring-blue-500!"
       @click="onCreateEvent()"
@@ -92,9 +92,9 @@ const toggle = (event: MouseEvent, row: any) => {
   </div>
   <Card>
     <template #content>
-      <div v-if="customers.length">
+      <div v-if="items.length">
         <DataTable
-          :value="customers"
+          :value="items"
           stripedRows
           :loading="loading"
           paginator
@@ -114,8 +114,8 @@ const toggle = (event: MouseEvent, row: any) => {
               </router-link>
             </template>
           </Column>
-          <Column field="email" header="Email" style="width: 25%"></Column>
-          <Column field="phone" header="Phone" style="width: 25%"></Column>
+          <Column field="price" header="Price" style="width: 25%"></Column>
+          <Column field="description" header="description" style="width: 25%"></Column>
           <Column field="action" header="Actions" style="width: 25%">
             <template #body="{ data }">
               <i
@@ -139,7 +139,7 @@ const toggle = (event: MouseEvent, row: any) => {
     modal
     :style="{ width: '500px' }"
   >
-    <p>Are you sure you want to delete this customer?</p>
+    <p>Are you sure you want to delete this item?</p>
 
     <template #footer>
       <Button

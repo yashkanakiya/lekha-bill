@@ -2,14 +2,19 @@ import { createMemoryHistory, createRouter } from "vue-router";
 
 import { useAuthStore } from "../stores/authStore";
 
+import Sidebar from "../layouts/Sidebar.vue";
+
 import Login from "../components/auth/Login.vue";
 import Register from "../components/auth/Register.vue";
 
 import Dashboard from "../components/dashboard/Index.vue";
+
+import Items from "../components/items/Index.vue";
+import CreateItem from "../components/items/CreateItem.vue";
+
 import Customers from "../components/customers/Index.vue";
 import CreateCustomer from "../components/customers/CreateCustomer.vue";
 import ViewCustomer from "../components/customers/ViewCustomer.vue";
-import Sidebar from "../layouts/Sidebar.vue";
 
 const routes = [
   {
@@ -36,6 +41,23 @@ const routes = [
         name: "Dashboard",
         component: Dashboard,
       },
+      // Item
+      {
+        path: "/items",
+        name: "Items",
+        component: Items,
+      },
+      {
+        path: "/create-item",
+        name: "Create-Item",
+        component: CreateItem,
+      },
+      {
+        path: "/edit-item/:id",
+        name: "Edit-Item",
+        component: CreateItem,
+      },
+      // Customer
       {
         path: "/customers",
         name: "Customers",
@@ -48,12 +70,12 @@ const routes = [
       },
       {
         path: "/edit-customer/:id",
-        name: "EditCustomer",
+        name: "Edit-Customer",
         component: CreateCustomer,
       },
       {
         path: "/view-customer/:id",
-        name: "ViewCustomer",
+        name: "View-Customer",
         component: ViewCustomer,
       },
     ],

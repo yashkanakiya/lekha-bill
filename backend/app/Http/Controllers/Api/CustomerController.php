@@ -21,8 +21,16 @@ class CustomerController extends Controller
      */
     public function store(Request $request)
     {
-        $customer = Customer::create($request->all());
-        return response()->json($customer);
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|email|unique:customers,email,' . $id,
+            'phone' => 'required|numeric',
+            'address' => 'required|string'
+        ]);
+
+        return Customer::create($validated);
+        // $customer = Customer::create($request->all());
+        // return response()->json($customer);
     }
 
     /**
@@ -30,6 +38,7 @@ class CustomerController extends Controller
      */
     public function show(string $id)
     {
+        // return Customer::with('invoices')->findOrFail($id);
         return Customer::findOrFail($id);
     }
 
@@ -46,9 +55,20 @@ class CustomerController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $id)
+    public function destroy($id)
     {
-        Customer::destroy($id);
-        return response()->json(['message' => 'Deleted']);
+        $customer = Customer::findOrFail($id);
+
+        if ($customer->invoices()->exists()) {
+            return response()->json([
+                'message' => 'Customer has invoices, cannot delete'
+            ], 400);
+        }
+
+        $customer->delete();
+
+        return response()->json([
+            'message' => 'Customer deleted successfully'
+        ]);
     }
 }

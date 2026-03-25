@@ -41,14 +41,9 @@ const navigation = [
     ],
   },
   {
-    name: "Projects",
+    name: "Items",
+    to: "/items",
     icon: FolderIcon,
-    children: [
-      { name: "GraphQL API", to: "#" },
-      { name: "iOS App", to: "#" },
-      { name: "Android App", to: "#" },
-      { name: "New Customer Portal", to: "#" },
-    ],
   },
   { name: "Customers", to: "/customers", icon: UsersIcon },
   { name: "Documents", to: "#", icon: DocumentDuplicateIcon },
@@ -138,10 +133,7 @@ async function handleLogout() {
             <ul class="-mx-2 space-y-1">
               <li v-for="item in navigation" :key="item.name">
                 <!-- Items without children -->
-                <router-link
-                  v-if="!item.children"
-                  :to="item.to"
-                >
+                <router-link v-if="!item.children" :to="item.to">
                   <div
                     :class="[
                       isActive(item.name) ? 'bg-gray-100' : 'hover:bg-gray-50',
