@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref } from "vue";
+import { ref, computed } from "vue";
 import { useRouter } from "vue-router";
 import { Disclosure, DisclosureButton, DisclosurePanel } from "@headlessui/vue";
 import {
@@ -19,6 +19,7 @@ import { useAuthStore } from "../stores/authStore";
 import { useToast } from "primevue/usetoast";
 
 import Button from "primevue/button";
+import Dialog from "primevue/dialog";
 
 const router = useRouter();
 const authStore = useAuthStore();
@@ -26,6 +27,7 @@ const toast = useToast();
 
 const activeItem = ref("Dashboard");
 const isSidebarOpen = ref(false);
+const showLogoutDialog = ref(false);
 
 const navigation = [
   { name: "Dashboard", to: "/dashboard", icon: HomeIcon },
@@ -53,6 +55,10 @@ const navigation = [
   { name: "Reports", to: "#", icon: ChartPieIcon },
 ];
 
+const userInitial = computed(() => {
+  return authStore.user?.name?.charAt(0).toUpperCase() || "";
+});
+
 const setActiveItem = (itemName: string) => {
   activeItem.value = itemName;
   if (window.innerWidth < 768) {
@@ -74,16 +80,16 @@ const closeSidebar = () => {
 
 async function handleLogout() {
   await authStore.logout();
-  await authStore.resetUserData()
+  await authStore.resetUserData();
+  showLogoutDialog.value = false;
   await router.replace("/login");
-   toast.add({
-      severity: "success",
-      summary: "Log out",
-      detail: "Logout Successfully",
-      life: 3000,
-    });
+  toast.add({
+    severity: "success",
+    summary: "Log out",
+    detail: "Logout Successfully",
+    life: 3000,
+  });
 }
-
 </script>
 
 <template>
@@ -135,7 +141,6 @@ async function handleLogout() {
                 <router-link
                   v-if="!item.children"
                   :to="item.to"
-                  @click="setActiveItem(item.name)"
                 >
                   <div
                     :class="[
@@ -200,32 +205,56 @@ async function handleLogout() {
             </ul>
           </li>
 
-           <!-- User profile section -->
+          <!-- User profile section -->
           <li class="-mx-6 mt-auto">
             <router-link
               to="/#"
-              @click="setActiveItem('Profile')"
-              class="flex items-center gap-x-4 px-6 py-3 text-sm/6 font-semibold text-gray-900 hover:bg-gray-50"
+              class="flex items-center justify-between px-6 py-3 text-sm font-semibold text-gray-900 hover:bg-gray-50"
             >
-              <img
-                class="size-8 rounded-full bg-gray-50"
-                src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80"
-                alt=""
+              <!-- LEFT SIDE -->
+              <div class="flex items-center gap-x-4">
+                <div
+                  class="w-8 h-8 rounded-full bg-gray-400 flex items-center justify-center text-white font-bold"
+                >
+                  {{ userInitial }}
+                </div>
+
+                <span class="font-semibold text-lg">
+                  {{ authStore.user?.name }}
+                </span>
+              </div>
+
+              <!-- RIGHT SIDE -->
+              <Button
+                icon="pi pi-sign-out"
+                severity="secondary"
+                variant="text"
+                rounded
+                aria-label="logout"
+                @click.stop="showLogoutDialog = true"
               />
-              <span class="sr-only">Your profile</span>
-              <span aria-hidden="true">Tom Cook</span>
             </router-link>
-            
-            <Button
-              label="Logout"
-              :disabled = "authStore.isFetching"
-              class="flex w-full justify-center rounded-md bg-red-600! px-3 py-1.5 text-sm/6 font-semibold text-white shadow-sm hover:bg-red-500! focus-visible:outline-offset-2 focus-visible:outline-red-600!"
-              @click="handleLogout"
-            />
           </li>
         </ul>
       </nav>
     </div>
+    <Dialog
+      v-model:visible="showLogoutDialog"
+      header="Log out"
+      modal
+      :style="{ width: '500px' }"
+    >
+      <p>Are you sure you want to logout?</p>
+
+      <template #footer>
+        <Button
+          label="Cancel"
+          class="px-4 py-2 bg-transparent! text-black! rounded focus:outline-none! focus:ring-1! focus:ring-gray-500!"
+          @click="showLogoutDialog = false"
+        />
+        <Button label="Log Out" class="p-button-danger" @click="handleLogout" />
+      </template>
+    </Dialog>
 
     <!-- Main content -->
     <main

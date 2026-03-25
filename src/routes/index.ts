@@ -65,22 +65,6 @@ const router = createRouter({
   routes,
 });
 
-// router.beforeEach((to, from, next) => {
-//   const authStore = useAuthStore();
-
-//   const isLoggedIn = !!authStore.user;
-
-//   if (to.matched.some((r) => r.meta.requiresAuth) && !isLoggedIn) {
-//     authStore.fetchUser();
-//     return next("/login");
-//   }
-
-//   if (to.path === "/login" && isLoggedIn) {
-//     return next("/dashboard");
-//   }
-
-//   next();
-// });
 
 router.beforeEach(async (to, from, next) => {
   const authStore = useAuthStore();
