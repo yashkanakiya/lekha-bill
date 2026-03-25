@@ -14,10 +14,12 @@ onMounted(() => {
   fetchData();
 });
 
-const home = { label: "Customers", to: "/customers" };
-const navLinks = [{ label: `${customerStore.customer?.name}` }];
-
 const customerId = computed(() => router.currentRoute.value.params.id);
+
+const navLinks = computed(() => [
+  { label: "Customers", to: "/customers" },
+  { label: customerStore.customer?.name }
+]);
 
 async function fetchData() {
   try {
@@ -32,7 +34,7 @@ async function fetchData() {
     <h1 class="text-2xl font-bold mb-4">Customer Details</h1>
   </div>
 
-  <Breadcrumb :home="home" :model="navLinks" class="my-4">
+  <Breadcrumb  :model="navLinks" class="my-4">
     <template #item="{ item, props }">
       <router-link
         v-if="item.to"

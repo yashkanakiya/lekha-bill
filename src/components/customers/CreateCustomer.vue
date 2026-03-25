@@ -28,9 +28,10 @@ const customerData = ref({
 });
 
 const isEdit = computed(() => router.currentRoute.value.params.id);
-
-const home = { label: "Customers", to: "/customers" };
-const navLinks = [{ label: isEdit.value ? "Edit Customer" : "Create Customer" }];
+const navLinks = computed(() => [
+  { label: "Customers", to: "/customers" },
+  {  label: isEdit.value ? "Edit Customer" : "Create Customer"}
+]);
 
 onMounted(async () => {
   if (isEdit.value) {
@@ -127,7 +128,7 @@ async function submitDataFunc() {
       {{ isEdit ? "Edit Customer" : "Create Customer" }}
     </h1>
   </div>
-  <Breadcrumb :home="home" :model="navLinks" class="my-4">
+  <Breadcrumb :model="navLinks" class="my-4">
     <template #item="{ item, props }">
       <router-link
         v-if="item.to"
