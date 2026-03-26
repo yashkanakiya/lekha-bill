@@ -13,7 +13,6 @@ import Menu from "primevue/menu";
 import Dialog from "primevue/dialog";
 import { useToast } from "primevue/usetoast";
 
-
 const customerStore = useCustomerStore();
 const router = useRouter();
 const toast = useToast();
@@ -61,16 +60,19 @@ function onCreateEvent() {
 const confirmDelete = async () => {
   if (!selectedRow.value) return;
 
-  await customerStore.deleteCustomer(selectedRow.value.id);
+  await customerStore.deleteCustomer(selectedRow.value.id).then((response) => {
+    console.log(response)
+    if (response) {
+      toast.add({
+        severity: "success",
+        summary: "Customer Deleted",
+        detail: "Customer Deleted Successfully",
+        life: 3000,
+      });
+    }
+  });
 
   showDeleteDialog.value = false;
-
-  toast.add({
-    severity: "success",
-    summary: "Customer Deleted",
-    detail: "Customer Deleted Successfully",
-    life: 3000,
-  });
 };
 
 const toggle = (event: MouseEvent, row: any) => {
@@ -145,7 +147,7 @@ const toggle = (event: MouseEvent, row: any) => {
       <Button
         label="Cancel"
         icon="pi pi-times"
-        class="px-4 py-2 bg-transparent! text-black! rounded  focus:outline-none! focus:ring-1! focus:ring-gray-500!"
+        class="px-4 py-2 bg-transparent! text-black! rounded focus:outline-none! focus:ring-1! focus:ring-gray-500!"
         @click="showDeleteDialog = false"
       />
       <Button

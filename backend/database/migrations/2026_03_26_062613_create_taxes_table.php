@@ -11,13 +11,12 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('items', function (Blueprint $table) {
+        Schema::create('taxes', function (Blueprint $table) {
         $table->id();
-        $table->string('name');
-        $table->decimal('price', 12, 2);
-        $table->text('description')->nullable();
+        $table->string('name'); // GST, CGST, SGST, VAT
+        $table->decimal('rate', 5, 2);
         $table->timestamps();
-});
+        });
     }
 
     /**
@@ -25,6 +24,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('items');
+        Schema::dropIfExists('taxes');
     }
 };

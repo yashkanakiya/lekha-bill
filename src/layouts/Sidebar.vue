@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, computed } from "vue";
-import { useRouter } from "vue-router";
+import { useRouter, useRoute } from "vue-router";
 import { Disclosure, DisclosureButton, DisclosurePanel } from "@headlessui/vue";
 import {
   ChevronRightIcon,
@@ -22,10 +22,10 @@ import Button from "primevue/button";
 import Dialog from "primevue/dialog";
 
 const router = useRouter();
+const route = useRoute();
 const authStore = useAuthStore();
 const toast = useToast();
 
-const activeItem = ref("Dashboard");
 const isSidebarOpen = ref(false);
 const showLogoutDialog = ref(false);
 
@@ -54,15 +54,9 @@ const userInitial = computed(() => {
   return authStore.user?.name?.charAt(0).toUpperCase() || "";
 });
 
-const setActiveItem = (itemName: string) => {
-  activeItem.value = itemName;
-  if (window.innerWidth < 768) {
-    isSidebarOpen.value = false;
-  }
-};
 
-const isActive = (itemName: string) => {
-  return activeItem.value === itemName;
+const isActive = (path: string) => {
+  return route.path.startsWith(path);
 };
 
 const toggleSidebar = () => {
@@ -136,7 +130,7 @@ async function handleLogout() {
                 <router-link v-if="!item.children" :to="item.to">
                   <div
                     :class="[
-                      isActive(item.name) ? 'bg-gray-100' : 'hover:bg-gray-50',
+                      isActive(item.to) ? 'bg-gray-100' : 'hover:bg-gray-50',
                       'group flex gap-x-3 rounded-md p-2 text-sm/6 font-semibold text-gray-700',
                     ]"
                   >
@@ -152,9 +146,9 @@ async function handleLogout() {
                 <!-- Items with children -->
                 <Disclosure as="div" v-else v-slot="{ open }">
                   <DisclosureButton
-                    @click="setActiveItem(item.name)"
+                    @click="isSidebarOpen = false"
                     :class="[
-                      isActive(item.name) ? 'bg-gray-100' : 'hover:bg-gray-50',
+                      isActive(item.to) ? 'bg-gray-100' : 'hover:bg-gray-50',
                       'flex w-full items-center gap-x-3 rounded-md p-2 text-left text-sm/6 font-semibold text-gray-700',
                     ]"
                   >
@@ -177,11 +171,11 @@ async function handleLogout() {
                     <li v-for="subItem in item.children" :key="subItem.name">
                       <router-link
                         :to="subItem.to"
-                        @click="setActiveItem(subItem.name)"
+                        @click="isSidebarOpen = false"
                       >
                         <div
                           :class="[
-                            isActive(subItem.name)
+                            isActive(subItem.to)
                               ? 'bg-gray-100'
                               : 'hover:bg-gray-50',
                             'block rounded-md py-2 pl-9 pr-2 text-sm/6 text-gray-700',
@@ -199,8 +193,7 @@ async function handleLogout() {
 
           <!-- User profile section -->
           <li class="-mx-6 mt-auto">
-            <router-link
-              to="/#"
+            <div
               class="flex items-center justify-between px-6 py-3 text-sm font-semibold text-gray-900 hover:bg-gray-50"
             >
               <!-- LEFT SIDE -->
@@ -225,7 +218,7 @@ async function handleLogout() {
                 aria-label="logout"
                 @click.stop="showLogoutDialog = true"
               />
-            </router-link>
+            </div>
           </li>
         </ul>
       </nav>
