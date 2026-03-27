@@ -6,7 +6,6 @@ import { useVuelidate } from "@vuelidate/core";
 import { required, helpers, numeric, minValue, maxValue } from "@vuelidate/validators";
 import { useToast } from "primevue/usetoast";
 
-import FloatLabel from "primevue/floatlabel";
 import InputText from "primevue/inputtext";
 import Textarea from "primevue/textarea";
 import Button from "primevue/button";

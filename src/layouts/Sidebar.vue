@@ -46,7 +46,7 @@ const navigation = [
     icon: FolderIcon,
   },
   { name: "Customers", to: "/customers", icon: UsersIcon },
-  { name: "Documents", to: "#", icon: DocumentDuplicateIcon },
+  { name: "Invoices", to: "/invoices", icon: DocumentDuplicateIcon },
   { name: "Reports", to: "#", icon: ChartPieIcon },
 ];
 
