@@ -7,6 +7,7 @@ import { required, helpers, numeric, minValue, maxValue } from "@vuelidate/valid
 import { useToast } from "primevue/usetoast";
 
 import InputText from "primevue/inputtext";
+import InputNumber from "primevue/inputnumber";
 import Textarea from "primevue/textarea";
 import Button from "primevue/button";
 import Card from "primevue/card";
@@ -178,11 +179,12 @@ async function submitDataFunc() {
 
           <div class="mb-4">
             <label class="block py-2 font-bold text-gray-700 mb-1">Price</label>
-            <InputText
+            <InputNumber
               v-model="itemData.price"
-              class="w-full px-3 py-2 border rounded focus:outline-none focus:ring-1! focus:ring-blue-500!"
+              class="w-full rounded focus:outline-none focus:ring-1! focus:ring-blue-500!"
               placeholder="Enter item price"
-              type="tel"
+              mode="currency"
+              currency="INR"
               required
               :invalid="v$.itemData.price.$error"
               @blur="v$.itemData.price.$touch()"

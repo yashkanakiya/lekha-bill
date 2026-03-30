@@ -13,7 +13,4 @@ class Customer extends Model
         'address',
     ];
 
-    public function invoices() {
-        return $this->hasMany(Invoice::class);
-    }
 }

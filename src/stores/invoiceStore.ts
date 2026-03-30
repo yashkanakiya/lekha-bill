@@ -43,18 +43,18 @@ export const useInvoiceStore = defineStore("invoice", {
     invoice: null,
 
     invoiceForm: {
-      customer_id: null,
-      invoice_number: "",
+      CustomerID: null,
+      InvoiceNumber: "",
       items: [],
       taxes: [],
 
-      is_discount_enabled: false,
-      is_tax_enabled: false,
+      isDiscountEnabled: false,
+      isTaxEnabled: false,
 
-      sub_total: 0,
-      discount_total: 0,
-      tax_total: 0,
-      grand_total: 0,
+      subTotal: 0,
+      discountTotal: 0,
+      taxTotal: 0,
+      grandTotal: 0,
     },
   }),
 
@@ -64,15 +64,13 @@ export const useInvoiceStore = defineStore("invoice", {
     // ------------------------
     addItem(item = null) {
       this.invoiceForm.items.push({
-        item_id: item?.id || null,
+        itemId: item?.id || null,
         name: item?.name || "",
         price: item?.price || 0,
         quantity: 1,
         discount: 0,
-        discount_type: "fixed",
-        is_discount_enabled: false,
+        discountType: "fixed",
         tax: 0,
-        is_tax_enabled: false,
         total: 0,
       });
 
@@ -101,9 +99,9 @@ export const useInvoiceStore = defineStore("invoice", {
         let itemTotal = item.price * item.quantity;
 
         // Discount
-        if (item.is_discount_enabled) {
+        if (item.isDiscountEnabled) {
           let discount =
-            item.discount_type === "%"
+            item.discountType === "%"
               ? (itemTotal * item.discount) / 100
               : item.discount;
 
@@ -112,7 +110,7 @@ export const useInvoiceStore = defineStore("invoice", {
         }
 
         // Tax
-        if (item.is_tax_enabled) {
+        if (item.isTaxEnabled) {
           let taxAmount = (itemTotal * item.tax) / 100;
           itemTotal += taxAmount;
           taxTotal += taxAmount;
@@ -123,24 +121,24 @@ export const useInvoiceStore = defineStore("invoice", {
       });
 
       // Global Taxes (invoice level)
-      if (this.invoiceForm.is_tax_enabled) {
+      if (this.invoiceForm.isTaxEnabled) {
         this.invoiceForm.taxes.forEach((tax) => {
           tax.amount = (subTotal * tax.rate) / 100;
           taxTotal += tax.amount;
         });
       }
 
-      this.invoiceForm.sub_total = subTotal;
-      this.invoiceForm.discount_total = discountTotal;
-      this.invoiceForm.tax_total = taxTotal;
-      this.invoiceForm.grand_total = subTotal + taxTotal;
+      this.invoiceForm.subTotal = subTotal;
+      this.invoiceForm.discountTotal = discountTotal;
+      this.invoiceForm.taxTotal = taxTotal;
+      this.invoiceForm.grandTotal = subTotal + taxTotal;
     },
 
     // ------------------------
     // API
     // ------------------------
 
-     fetchInvoices() {
+    fetchInvoices() {
       api
         .get("/invoices")
         .then((response) => {
@@ -169,23 +167,23 @@ export const useInvoiceStore = defineStore("invoice", {
     formatPayload() {
       return {
         customer_id: this.invoiceForm.customer_id,
-        invoice_number: this.invoiceForm.invoice_number,
+        invoice_number: this.invoiceForm.invoiceNumber,
 
-        sub_total: this.invoiceForm.sub_total,
-        discount_total: this.invoiceForm.discount_total,
-        tax_total: this.invoiceForm.tax_total,
-        grand_total: this.invoiceForm.grand_total,
+        sub_total: this.invoiceForm.subTotal,
+        discount_total: this.invoiceForm.discountTotal,
+        tax_total: this.invoiceForm.taxTotal,
+        grand_total: this.invoiceForm.grandTotal,
 
-        is_discount_enabled: this.invoiceForm.is_discount_enabled,
-        is_tax_enabled: this.invoiceForm.is_tax_enabled,
+        is_discount_enabled: this.invoiceForm.isDiscountEnabled,
+        is_tax_enabled: this.invoiceForm.isTaxEnabled,
 
         items: this.invoiceForm.items.map((item) => ({
-          item_id: item.item_id,
+          item_id: item.itemId,
           name: item.name,
           price: item.price,
           quantity: item.quantity,
           discount: item.discount,
-          discount_type: item.discount_type,
+          discount_type: item.discountType,
           tax: item.tax,
           total: item.total,
         })),
@@ -199,16 +197,16 @@ export const useInvoiceStore = defineStore("invoice", {
 
     resetForm() {
       this.invoiceForm = {
-        customer_id: null,
-        invoice_number: "",
+        customerId: null,
+        invoiceNumber: "",
         items: [],
         taxes: [],
-        is_discount_enabled: false,
-        is_tax_enabled: false,
-        sub_total: 0,
-        discount_total: 0,
-        tax_total: 0,
-        grand_total: 0,
+        isDiscountEnabled: false,
+        isTaxEnabled: false,
+        subTotal: 0,
+        discountTotal: 0,
+        taxTotal: 0,
+        grandTotal: 0,
       };
     },
   },

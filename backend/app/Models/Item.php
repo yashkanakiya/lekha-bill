@@ -14,7 +14,4 @@ class Item extends Model
         'description'
     ];
 
-    public function invoiceItems() {
-        return $this->hasMany(InvoiceItem::class);
-    }
 }
