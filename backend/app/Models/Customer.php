@@ -13,4 +13,18 @@ class Customer extends Model
         'address',
     ];
 
+    public function customer()
+    {
+        return $this->belongsTo(Customer::class);
+    }
+
+    protected static function booted()
+    {
+        static::deleting(function ($customer) {
+            if ($customer->invoices()->exists()) {
+                throw new \Exception('Customer has invoices, cannot delete.');
+            }
+        });
+    }
+
 }

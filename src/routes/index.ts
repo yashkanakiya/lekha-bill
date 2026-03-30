@@ -92,6 +92,11 @@ const routes = [
         name: "Create-Invoice",
         component: CreateInvoice,
       },
+      {
+        path: "/edit-invoice/:id",
+        name: "Edit-Invoice",
+        component: CreateInvoice,
+      },
     ],
   },
 ];

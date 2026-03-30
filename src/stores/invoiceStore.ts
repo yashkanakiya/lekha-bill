@@ -1,213 +1,103 @@
-// import { defineStore } from "pinia";
-// import api from "../plugins/axios";
-
-// export const useInvoiceStore = defineStore("invoice", {
-//   state: () => {
-//     return {
-//       invoices: [],
-//       invoice: null,
-//     };
-//   },
-
-//   actions: {
-//     fetchInvoices() {
-//       api
-//         .get("/invoices")
-//         .then((response) => {
-//           this.invoices = response.data;
-//         })
-//         .catch((error) => {
-//           console.error("Error fetching customers:", error);
-//         });
-//     },
-
-//     addInvoice(params) {
-//       api
-//         .post("/invoices", params)
-//         .then((response) => {
-//           this.invoices.push(response.data);
-//         })
-//         .catch((error) => {
-//           console.error("Error adding customer:", error);
-//         });
-//     },
-//   },
-// });
-
 import { defineStore } from "pinia";
 import api from "../plugins/axios";
 
 export const useInvoiceStore = defineStore("invoice", {
   state: () => ({
     invoices: [],
-    invoice: null,
 
-    invoiceForm: {
-      CustomerID: null,
-      InvoiceNumber: "",
-      items: [],
-      taxes: [],
-
-      isDiscountEnabled: false,
-      isTaxEnabled: false,
-
-      subTotal: 0,
-      discountTotal: 0,
-      taxTotal: 0,
-      grandTotal: 0,
+    invoiceData: {
+      customer_id: null,
+      invoice_number: "",
+      items: [
+        {
+          item_id: null,
+          item_name: "",
+          price: 0,
+          quantity: 1,
+          discount_type: null, // 'percentage' | 'fixed'
+          discount_value: 0,
+          tax_percentage: 0,
+        },
+      ],
     },
   }),
 
   actions: {
-    // ------------------------
-    // ITEM MANAGEMENT
-    // ------------------------
-    addItem(item = null) {
-      this.invoiceForm.items.push({
-        itemId: item?.id || null,
-        name: item?.name || "",
-        price: item?.price || 0,
+    addItem() {
+      this.invoiceData.items.push({
+        item_id: null,
+        item_name: "",
+        price: 0,
         quantity: 1,
-        discount: 0,
-        discountType: "fixed",
-        tax: 0,
-        total: 0,
+        discount_type: null,
+        discount_value: 0,
+        tax_percentage: 0,
       });
-
-      this.calculateTotals();
     },
 
-    removeItem(index) {
-      this.invoiceForm.items.splice(index, 1);
-      this.calculateTotals();
+    removeItem(index: number) {
+      this.invoiceData.items.splice(index, 1);
     },
 
-    updateItem(index, field, value) {
-      this.invoiceForm.items[index][field] = value;
-      this.calculateTotals();
-    },
-
-    // ------------------------
-    // CALCULATIONS (CORE LOGIC)
-    // ------------------------
-    calculateTotals() {
-      let subTotal = 0;
-      let discountTotal = 0;
-      let taxTotal = 0;
-
-      this.invoiceForm.items.forEach((item) => {
-        let itemTotal = item.price * item.quantity;
-
-        // Discount
-        if (item.isDiscountEnabled) {
-          let discount =
-            item.discountType === "%"
-              ? (itemTotal * item.discount) / 100
-              : item.discount;
-
-          itemTotal -= discount;
-          discountTotal += discount;
-        }
-
-        // Tax
-        if (item.isTaxEnabled) {
-          let taxAmount = (itemTotal * item.tax) / 100;
-          itemTotal += taxAmount;
-          taxTotal += taxAmount;
-        }
-
-        item.total = itemTotal;
-        subTotal += itemTotal;
-      });
-
-      // Global Taxes (invoice level)
-      if (this.invoiceForm.isTaxEnabled) {
-        this.invoiceForm.taxes.forEach((tax) => {
-          tax.amount = (subTotal * tax.rate) / 100;
-          taxTotal += tax.amount;
-        });
-      }
-
-      this.invoiceForm.subTotal = subTotal;
-      this.invoiceForm.discountTotal = discountTotal;
-      this.invoiceForm.taxTotal = taxTotal;
-      this.invoiceForm.grandTotal = subTotal + taxTotal;
-    },
-
-    // ------------------------
-    // API
-    // ------------------------
-
-    fetchInvoices() {
-      api
-        .get("/invoices")
-        .then((response) => {
-          this.invoices = response.data;
-        })
-        .catch((error) => {
-          console.error("Error fetching customers:", error);
-        });
-    },
-
-    async addInvoice() {
+    async fetchInvoices() {
       try {
-        const payload = this.formatPayload();
-        const response = await api.post("/invoices", payload);
+        const response = await api.get("/invoices");
+        this.invoices = response.data;
+      } catch (error) {
+        console.error("Error fetching invoices:", error);
+      }
+    },
 
+    async createInvoice() {
+      try {
+        const payload = this.buildPayload();
+
+        const response = await api.post("/invoices", payload);
         this.invoices.push(response.data);
+
         this.resetForm();
       } catch (error) {
-        console.error("Error adding invoice:", error);
+        console.error("Error creating invoice:", error);
       }
     },
 
-    // ------------------------
-    // FORMAT DATA FOR BACKEND
-    // ------------------------
-    formatPayload() {
+    async fetchNextInvoiceNumber() {
+      try {
+        const res = await api.get("/invoices/next-number");
+        this.invoiceData.invoice_number = res.data.invoice_number;
+      } catch (err) {
+        console.error(err);
+      }
+    },
+
+    buildPayload() {
       return {
-        customer_id: this.invoiceForm.customer_id,
-        invoice_number: this.invoiceForm.invoiceNumber,
-
-        sub_total: this.invoiceForm.subTotal,
-        discount_total: this.invoiceForm.discountTotal,
-        tax_total: this.invoiceForm.taxTotal,
-        grand_total: this.invoiceForm.grandTotal,
-
-        is_discount_enabled: this.invoiceForm.isDiscountEnabled,
-        is_tax_enabled: this.invoiceForm.isTaxEnabled,
-
-        items: this.invoiceForm.items.map((item) => ({
-          item_id: item.itemId,
-          name: item.name,
-          price: item.price,
+        customer_id: this.invoiceData.customer_id,
+        invoice_number: this.invoiceData.invoice_number,
+        items: this.invoiceData.items.map((item) => ({
+          item_id: item.item_id,
           quantity: item.quantity,
-          discount: item.discount,
-          discount_type: item.discountType,
-          tax: item.tax,
-          total: item.total,
-        })),
-
-        taxes: this.invoiceForm.taxes.map((tax) => ({
-          tax_id: tax.id,
-          amount: tax.amount,
+          price: item.price,
+          discount_type: item.discount_type,
+          discount_value: item.discount_value,
+          tax_percentage: item.tax_percentage,
         })),
       };
     },
 
     resetForm() {
-      this.invoiceForm = {
-        customerId: null,
-        invoiceNumber: "",
-        items: [],
-        taxes: [],
-        isDiscountEnabled: false,
-        isTaxEnabled: false,
-        subTotal: 0,
-        discountTotal: 0,
-        taxTotal: 0,
-        grandTotal: 0,
-      };
+      this.invoiceData.customer_id = null;
+      this.invoiceData.items = [
+        {
+          item_id: null,
+          item_name: "",
+          price: 0,
+          quantity: 1,
+          discount_type: null,
+          discount_value: 0,
+          tax_percentage: 0,
+        },
+      ];
     },
   },
 });

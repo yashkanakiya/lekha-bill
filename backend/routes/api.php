@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\CustomerController;
 use App\Http\Controllers\Api\ItemController;
+use App\Http\Controllers\Api\InvoiceController;
 use App\Http\Controllers\Auth\AuthController;
 use Illuminate\Foundation\Auth\EmailVerificationRequest;
 use Illuminate\Http\Request;
@@ -31,4 +32,6 @@ Route::apiResource('customers', CustomerController::class);
 // Item route
 Route::apiResource('items', ItemController::class);
 
-
+// Invoice Route
+Route::get('/invoices/next-number', [InvoiceController::class, 'nextNumber']);
+Route::apiResource('invoices', InvoiceController::class);
