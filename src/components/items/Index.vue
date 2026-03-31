@@ -3,7 +3,6 @@ import { computed, onMounted, ref } from "vue";
 import { useItemStore } from "../../stores/itemStore";
 import { useRouter } from "vue-router";
 
-import BaseTable from "../base-component/BaseTable.vue";
 import Button from "primevue/button";
 import Card from "primevue/card";
 import DataTable from "primevue/datatable";

@@ -51,10 +51,22 @@ class InvoiceController extends Controller
         DB::beginTransaction();
 
         try {
+            // 🔥 LOCK + SAFE INVOICE NUMBER GENERATION
+            $lastInvoice = Invoice::lockForUpdate()->latest()->first();
+
+            $nextNumber = $lastInvoice
+                ? intval(substr($lastInvoice->invoice_number, 4)) + 1
+                : 1;
+
+            $invoiceNumber = 'INV-' . str_pad($nextNumber, 3, '0', STR_PAD_LEFT);
+
+            // ✅ Create invoice with number
             $invoice = Invoice::create([
                 'customer_id' => $request->customer_id,
+                'invoice_number' => $invoiceNumber,
             ]);
 
+            // ✅ Handle items
             $subtotal = $this->handleItems($invoice, $request->items);
 
             $invoice->update([
@@ -64,11 +76,16 @@ class InvoiceController extends Controller
 
             DB::commit();
 
-            return response()->json($invoice->load(['customer', 'items']), 201);
+            return response()->json(
+                $invoice->load(['customer', 'items']),
+                201
+            );
 
         } catch (\Exception $e) {
             DB::rollBack();
-            return response()->json(['error' => $e->getMessage()], 500);
+            return response()->json([
+                'error' => $e->getMessage()
+            ], 500);
         }
     }
 

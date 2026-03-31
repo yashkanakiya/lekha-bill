@@ -107,7 +107,7 @@ async function submitDataFunc() {
     } catch (error) {
       console.error("Error submitting customer data:", error);
       toast.add({
-        severity: "success",
+        severity: "warn",
         summary: isEdit.value ? "Customer Updated" : "Customer Created",
         detail:
           error?.response?.data?.message || isEdit.value

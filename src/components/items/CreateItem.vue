@@ -100,7 +100,7 @@ async function submitDataFunc() {
     } catch (error) {
       console.error("Error submitting item data:", error);
       toast.add({
-        severity: "success",
+        severity: "warn",
         summary: isEdit.value ? "Item Updated" : "Item Created",
         detail:
           error?.response?.data?.message || isEdit.value

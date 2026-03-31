@@ -1,33 +1,87 @@
 <script setup lang="ts">
-import { ref, computed, onMounted } from "vue";
+import { ref, computed, onMounted, onBeforeUnmount } from "vue";
 import { useRouter } from "vue-router";
 
 import { useInvoiceStore } from "../../stores/invoiceStore";
 import { useCustomerStore } from "../../stores/customerStore";
 import { useItemStore } from "../../stores/itemStore";
+import { useToast } from "primevue/usetoast";
 
 import Breadcrumb from "primevue/breadcrumb";
 import Card from "primevue/card";
 import InputText from "primevue/inputtext";
-import MultiSelect from "primevue/multiselect";
 import ToggleSwitch from "primevue/toggleswitch";
 import Button from "primevue/button";
 import InputNumber from "primevue/inputnumber";
+import Select from "primevue/select";
+import DataTable from "primevue/datatable";
+import Column from "primevue/column";
+import Multiselect from "vue-multiselect";
 
 const invoiceStore = useInvoiceStore();
 const customerStore = useCustomerStore();
 const itemStore = useItemStore();
+const toast = useToast();
 
 const router = useRouter();
 
 onMounted(async () => {
   await customerStore.fetchCustomers();
   await itemStore.fetchItems();
-  await invoiceStore.fetchNextInvoiceNumber();
+
+  if (isEdit.value) {
+    isLoading.value = true;
+
+    try {
+      await invoiceStore.fetchInvoice(isEdit.value);
+
+      const inv = invoiceStore.invoice;
+
+      console.log(inv)
+
+      if (inv) {
+        // 🔥 Map basic fields
+        invoiceData.value.invoice_number = inv.invoice_number;
+        invoiceData.value.customer_id = inv.customer.id;
+
+        // 🔥 Set selected customer (for Multiselect)
+        invoiceData.value.selectedCustomer =
+          customersData.value.find((c) => c.id === inv.customer.id) || null;
+
+        // 🔥 Map items
+        invoiceData.value.items = inv.items.map((item) => {
+          const selectedItem =
+            itemsData.value.find((i) => i.id === item.item_id) || null;
+
+          return {
+            selectedItem, // UI object
+            item_id: item.item_id,
+            item_name: item.item_name,
+            price: item.price,
+            quantity: item.quantity,
+            discount_type: item.discount_type || "fixed",
+            discount_value: item.discount_value || 0,
+            tax_percentage: item.tax_percentage || 0,
+          };
+        });
+
+        // 🔥 Enable toggles automatically
+        isDiscount.value = inv.items.some((i) => i.discount_value > 0);
+        isTax.value = inv.items.some((i) => i.tax_percentage > 0);
+      }
+    } catch (error) {
+      console.error("Error fetching invoice:", error);
+    } finally {
+      isLoading.value = false;
+    }
+  } else {
+    await invoiceStore.fetchNextInvoiceNumber();
+  }
 });
 
 const isDiscount = ref(false);
 const isTax = ref(false);
+const isLoading = ref(false);
 
 const invoiceData = computed(() => invoiceStore.invoiceData);
 
@@ -37,10 +91,88 @@ const itemsData = computed(() => itemStore.items);
 
 const isEdit = computed(() => router.currentRoute.value.params.id);
 
+const buttonName = computed(() => (isEdit.value ? "Edit" : "Submit"));
+
 const navLinks = computed(() => [
   { label: "Invoices", to: "/invoices" },
   { label: isEdit.value ? "Edit Invoice" : "Create Invoice" },
 ]);
+
+const discType = computed(() => [
+  { name: "Percentage (%)", label: "percentage" },
+  { name: "Fixed", label: "fixed" },
+]);
+
+const subtotal = computed(() => {
+  return invoiceData.value.items.reduce((sum, item) => {
+    return sum + calculateItemTotal(item);
+  }, 0);
+});
+
+const selectItem = (item, row) => {
+  row.item_id = item.id;
+  row.item_name = item.name;
+  row.price = item.price;
+};
+
+const calculateItemTotal = (item) => {
+  let total = item.price * item.quantity;
+
+  // Discount
+  if (isDiscount.value && item.discount_value > 0) {
+    if (item.discount_type === "percentage") {
+      total -= (total * item.discount_value) / 100;
+    } else {
+      total -= item.discount_value;
+    }
+  }
+
+  // Tax
+  if (isTax.value && item.tax_percentage > 0) {
+    total += (total * item.tax_percentage) / 100;
+  }
+
+  return total;
+};
+
+async function submitDataFunc() {
+  isLoading.value = true;
+  try {
+    if (isEdit.value) {
+      await invoiceStore.updateInvoice(isEdit.value);
+    } else {
+      await invoiceStore.createInvoice();
+    }
+    isLoading.value = false;
+    router.push("/invoices");
+    toast.add({
+      severity: "success",
+      summary: isEdit.value ? "Invoice Updated" : "Invoice Created",
+      detail: isEdit.value
+        ? "Invoice Updated Successfully"
+        : "Invoice Created Successfully",
+      life: 3000,
+    });
+  } catch (error) {
+    console.error("Error submitting Invoice data:", error);
+    toast.add({
+      severity: "warn",
+      summary: isEdit.value ? "Invoice Updated" : "Invoice Created",
+      detail:
+        error?.response?.data?.message || isEdit.value
+          ? "Invoice update failed."
+          : "Invoice creation failed.",
+      life: 3000,
+    });
+  } finally {
+    isLoading.value = false;
+  }
+}
+
+onBeforeUnmount(() => {
+  invoiceData.value.selectedCustomer = null;
+  invoiceStore.resetForm();
+});
 </script>
 
 <template>
@@ -84,16 +216,13 @@ const navLinks = computed(() => [
           <label class="block py-2 font-bold text-gray-700 mb-1"
             >Customer</label
           >
-          <MultiSelect
-            v-model="invoiceData.customer_id"
+          <Multiselect
+            v-model="invoiceData.selectedCustomer"
             :options="customersData"
-            optionLabel="name"
-            optionValue="id"
-            filter
             placeholder="Select Customer"
-            :selectionLimit="1"
-            class="w-full md:w-80"
-            required
+            track-by="id"
+            label="name"
+            @select="(val) => (invoiceData.customer_id = val.id)"
           />
         </div>
         <div>
@@ -127,31 +256,118 @@ const navLinks = computed(() => [
     </template>
   </Card>
 
-  <div class="mt-5 p-4">
-    <div v-for="(item, i) in invoiceData.items" :key="i">
-      <MultiSelect
-        v-model="item.item_id"
-        :options="itemsData"
-        optionLabel="name"
-        optionValue="id"
-        filter
-        placeholder="Select Item"
-        :selectionLimit="1"
-        class="w-full md:w-80"
-        required
-        @change="onItemSelect(i, $event.value)"
+  <Card class="mt-5">
+    <template #content>
+      <DataTable :value="invoiceData.items" responsiveLayout="scroll">
+        <!-- Item -->
+        <Column header="Item">
+          <template #body="{ data }">
+            <Multiselect
+              v-model="data.selectedItem"
+              :options="itemsData"
+              track-by="id"
+              label="name"
+              placeholder="Select Item"
+              @select="(val) => selectItem(val, data)"
+            />
+          </template>
+        </Column>
+
+        <!-- Price -->
+        <Column header="Price">
+          <template #body="{ data }">
+            <InputNumber
+              v-model="data.price"
+              mode="currency"
+              currency="INR"
+              disabled
+            />
+          </template>
+        </Column>
+
+        <!-- Quantity -->
+        <Column header="Qty">
+          <template #body="{ data }">
+            <InputNumber v-model="data.quantity" />
+          </template>
+        </Column>
+
+        <!-- Discount Type -->
+        <Column v-if="isDiscount" header="Discount Type">
+          <template #body="{ data }">
+            <Select
+              v-model="data.discount_type"
+              :options="discType"
+              optionLabel="name"
+              optionValue="label"
+            />
+          </template>
+        </Column>
+
+        <!-- Discount Value -->
+        <Column v-if="isDiscount" header="Discount">
+          <template #body="{ data }">
+            <InputNumber
+              v-model="data.discount_value"
+              :mode="
+                data.discount_type === 'percentage' ? 'decimal' : 'currency'
+              "
+              :currency="data.discount_type === 'fixed' ? 'INR' : undefined"
+              :suffix="data.discount_type === 'percentage' ? '%' : undefined"
+              :max="data.discount_type === 'percentage' ? 100 : null"
+            />
+          </template>
+        </Column>
+
+        <!-- Tax -->
+        <Column v-if="isTax" header="Tax %">
+          <template #body="{ data }">
+            <InputNumber v-model="data.tax_percentage" />
+          </template>
+        </Column>
+
+        <Column header="Total">
+          <template #body="{ data }">
+            ₹ {{ calculateItemTotal(data).toFixed(2) }}
+          </template>
+        </Column>
+        <!-- Actions -->
+        <Column header="">
+          <template #body="{ index }">
+            <Button
+              v-if="index > 0"
+              icon="pi pi-trash"
+              severity="danger"
+              @click="invoiceStore.removeItem(index)"
+            />
+          </template>
+        </Column>
+      </DataTable>
+
+      <!-- Add Row Button -->
+      <Button
+        label="Add Item"
+        icon="pi pi-plus"
+        class="mt-3"
+        @click="invoiceStore.addItem"
       />
 
-      <InputNumber
-        v-model="item.price"
-        mode="currency"
-        currency="INR"
-        disabled
-      />
+      <div class="mt-4 text-right">
+        <div class="text-lg font-semibold">
+          Subtotal: ₹ {{ subtotal.toFixed(2) }}
+        </div>
+      </div>
+    </template>
+  </Card>
 
-      <InputNumber
-        v-model="item.quantity"
-      />
-    </div>
-  </div>
+  <Button
+    :label="buttonName"
+    :disabled="isLoading"
+    icon="pi pi-save"
+    type="submit"
+    class="px-4 py-2 bg-blue-500! text-white rounded hover:bg-blue-600! focus:outline-none focus:ring-1! focus:ring-blue-500!"
+    @click="submitDataFunc"
+  />
 </template>
+
+<style src="vue-multiselect/dist/vue-multiselect.min.css"></style>

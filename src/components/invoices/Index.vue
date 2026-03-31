@@ -21,8 +21,8 @@ const menu = ref();
 const selectedRow = ref(null);
 const showDeleteDialog = ref(false);
 
-onMounted(() => {
-  invoiceStore.fetchInvoices();
+onMounted(async() => {
+  await invoiceStore.fetchInvoices();
 });
 
 const invoices = computed(() => invoiceStore.invoices);
@@ -109,11 +109,11 @@ const toggle = (event: MouseEvent, row: any) => {
                 :to="{ path: `/view-invoice/${data.id}` }"
                 class="text-blue-600 cursor-pointer"
               >
-                {{ data.name }}
+                {{ data.invoice_number }}
               </router-link>
             </template>
           </Column>
-          <Column field="customer" header="Customer" style="width: 25%"></Column>
+          <Column field="customer.name" header="Customer" style="width: 25%"></Column>
           <Column field="grand_total" header="Total" style="width: 25%"></Column>
           <Column field="created_at" header="Date" style="width: 25%"></Column>
           <Column field="action" header="Actions" style="width: 25%">

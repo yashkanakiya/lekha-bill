@@ -4,17 +4,21 @@ import api from "../plugins/axios";
 export const useInvoiceStore = defineStore("invoice", {
   state: () => ({
     invoices: [],
+    invoice: null,
 
     invoiceData: {
       customer_id: null,
       invoice_number: "",
+      selectedCustomer: null, // UI only
+      invoice_number: "",
       items: [
         {
+          selectedItem: null, // UI only
           item_id: null,
           item_name: "",
           price: 0,
           quantity: 1,
-          discount_type: null, // 'percentage' | 'fixed'
+          discount_type: "fixed", // 'percentage' | 'fixed'
           discount_value: 0,
           tax_percentage: 0,
         },
@@ -29,20 +33,32 @@ export const useInvoiceStore = defineStore("invoice", {
         item_name: "",
         price: 0,
         quantity: 1,
-        discount_type: null,
+        discount_type: "fixed",
         discount_value: 0,
         tax_percentage: 0,
       });
     },
 
     removeItem(index: number) {
-      this.invoiceData.items.splice(index, 1);
+      if (index > 0) {
+        this.invoiceData.items.splice(index, 1);
+      }
     },
 
     async fetchInvoices() {
       try {
         const response = await api.get("/invoices");
-        this.invoices = response.data;
+        this.invoices = response.data.data;
+      } catch (error) {
+        console.error("Error fetching invoices:", error);
+      }
+    },
+
+    async fetchInvoice(id) {
+      try {
+        const response = await api.get(`/invoices/${id}`);
+        console.log(response.data);
+        this.invoice = response.data;
       } catch (error) {
         console.error("Error fetching invoices:", error);
       }
@@ -60,6 +76,30 @@ export const useInvoiceStore = defineStore("invoice", {
         console.error("Error creating invoice:", error);
       }
     },
+
+    async updateInvoice(id) {
+      try {
+        const payload = this.buildPayload();
+
+        const response = await api.put(`/invoices/${id}`, payload);
+        const index = this.invoices.findIndex((c) => c.id === id);
+        if (index !== -1) this.invoices[index] = response.data;
+      } catch (error) {
+        console.error("Error creating invoice:", error);
+      }
+    },
+
+    // updateCustomer(id, params) {
+    //   api
+    //     .put(`/customers/${id}`, params)
+    //     .then((response) => {
+    //       const index = this.customers.findIndex((c) => c.id === id);
+    //       if (index !== -1) this.customers[index] = response.data;
+    //     })
+    //     .catch((error) => {
+    //       console.error("Error updating customer:", error);
+    //     });
+    // },
 
     async fetchNextInvoiceNumber() {
       try {
@@ -93,7 +133,7 @@ export const useInvoiceStore = defineStore("invoice", {
           item_name: "",
           price: 0,
           quantity: 1,
-          discount_type: null,
+          discount_type: "fixed",
           discount_value: 0,
           tax_percentage: 0,
         },
