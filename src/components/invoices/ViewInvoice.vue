@@ -74,7 +74,7 @@ const navLinks = computed(() => [
         <div>
           <p class="text-gray-500">Date</p>
           <p class="font-medium whitespace-pre-line">
-            {{ moment(invoiceStore.invoice?.created_at).format('DD MMM YYYY') }}
+            {{ moment(invoiceStore.invoice?.created_at).format('DD MMM YYYY, h:mm a') }}
           </p>
         </div>
       </div>
