@@ -2,6 +2,7 @@
 import { useRouter } from "vue-router";
 import { useCustomerStore } from "../../stores/customerStore";
 import { computed, onMounted } from "vue";
+import moment from "moment";
 
 import Button from "primevue/button";
 import Breadcrumb from "primevue/breadcrumb";
@@ -87,7 +88,7 @@ async function fetchData() {
 
         <div class="text-left md:text-right text-sm">
           <p class="text-gray-500">Created</p>
-          <p class="font-medium">{{ customerStore.customer?.created_at }}</p>
+          <p class="font-medium">{{ moment(customerStore.customer?.created_at).format('DD MMM YYYY') }}</p>
         </div>
       </div>
     </div>
@@ -126,14 +127,14 @@ async function fetchData() {
         <div class="flex justify-between">
           <span class="text-gray-500">Created At</span>
           <span class="font-medium">{{
-            customerStore.customer?.created_at
+            moment(customerStore.customer?.created_at).format('DD MMM YYYY, h:mm:ss a')
           }}</span>
         </div>
 
         <div class="flex justify-between">
           <span class="text-gray-500">Last Updated</span>
           <span class="font-medium">{{
-            customerStore.customer?.updated_at
+            moment(customerStore.customer?.updated_at).format('DD MMM YYYY, h:mm:ss a') 
           }}</span>
         </div>
       </div>

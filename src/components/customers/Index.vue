@@ -59,19 +59,25 @@ function onCreateEvent() {
 const confirmDelete = async () => {
   if (!selectedRow.value) return;
 
-  await customerStore.deleteCustomer(selectedRow.value.id).then((response) => {
-    console.log(response)
-    if (response) {
-      toast.add({
-        severity: "success",
-        summary: "Customer Deleted",
-        detail: "Customer Deleted Successfully",
-        life: 3000,
-      });
-    }
-  });
+  try {
+    await customerStore.deleteCustomer(selectedRow.value.id);
 
-  showDeleteDialog.value = false;
+    toast.add({
+      severity: "success",
+      summary: "Customer Deleted",
+      detail: "Customer Deleted Successfully",
+      life: 3000,
+    });
+  } catch (error) {
+    toast.add({
+      severity: "error",
+      summary: "Delete Failed",
+      detail: error,
+      life: 3000,
+    });
+  } finally {
+    showDeleteDialog.value = false;
+  }
 };
 
 const toggle = (event: MouseEvent, row: any) => {

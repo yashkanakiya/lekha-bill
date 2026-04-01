@@ -57,15 +57,15 @@ export const useCustomerStore = defineStore("customer", {
         });
     },
 
-    deleteCustomer(id) {
-      api
-        .delete(`/customers/${id}`)
-        .then(() => {
-          this.customers = this.customers.filter((c) => c.id !== id);
-        })
-        .catch((error) => {
-          console.error("Error deleting customer:", error);
-        });
+    async deleteCustomer(id) {
+      try {
+        await api.delete(`/customers/${id}`);
+
+        this.customers = this.customers.filter((c) => c.id !== id);
+      } catch (error) {
+        console.error("Error deleting customer:", error);
+        throw error.response?.data?.message || "Delete failed";
+      }
     },
   },
 });

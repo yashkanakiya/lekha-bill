@@ -13,9 +13,9 @@ class Customer extends Model
         'address',
     ];
 
-    public function customer()
+      public function invoices()
     {
-        return $this->belongsTo(Customer::class);
+        return $this->hasMany(Invoice::class);
     }
 
     protected static function booted()

@@ -2,6 +2,7 @@
 import { computed, onMounted } from "vue";
 import { useRouter } from "vue-router";
 import { useInvoiceStore } from "../../stores/invoiceStore";
+import moment from "moment";
 
 import Card from "primevue/card";
 import Breadcrumb from "primevue/breadcrumb";
@@ -55,7 +56,7 @@ const navLinks = computed(() => [
   </Breadcrumb>
   <Card>
     <template #content>
-      <div class="pb-5">
+      <div class="pb-5 space-y-2 grid grid-cols-1 md:grid-cols-2">
         <div>
           <p class="text-gray-500">Email</p>
           <p class="font-medium">{{ invoiceStore.invoice?.customer.email }}</p>
@@ -68,6 +69,12 @@ const navLinks = computed(() => [
           <p class="text-gray-500">Address</p>
           <p class="font-medium whitespace-pre-line">
             {{ invoiceStore.invoice?.customer.address }}
+          </p>
+        </div>
+        <div>
+          <p class="text-gray-500">Date</p>
+          <p class="font-medium whitespace-pre-line">
+            {{ moment(invoiceStore.invoice?.created_at).format('DD MMM YYYY') }}
           </p>
         </div>
       </div>

@@ -32,11 +32,6 @@ const itemsOptions = computed(() => {
   if (!selectedRow.value) return [];
 
   return [
-    // {
-    //   label: "View",
-    //   icon: "pi pi-eye",
-    //   command: () => router.push(`/view-item/${selectedRow.value.id}`),
-    // },
     {
       label: "Edit",
       icon: "pi pi-pencil",
@@ -59,16 +54,25 @@ function onCreateEvent() {
 const confirmDelete = async () => {
   if (!selectedRow.value) return;
 
-  await itemStore.deleteItem(selectedRow.value.id);
-
-  showDeleteDialog.value = false;
-
-  toast.add({
-    severity: "success",
-    summary: "Item Deleted",
-    detail: "Item Deleted Successfully",
-    life: 3000,
-  });
+  try {
+    await itemStore.deleteItem(selectedRow.value.id);
+  
+    toast.add({
+      severity: "success",
+      summary: "Item Deleted",
+      detail: "Item Deleted Successfully",
+      life: 3000,
+    });
+  } catch (error) {
+    toast.add({
+      severity: "error",
+      summary: "Delete Failed",
+      detail: error,
+      life: 3000,
+    });
+  }finally {
+    showDeleteDialog.value = false;
+  }
 };
 
 const toggle = (event: MouseEvent, row: any) => {
@@ -104,15 +108,24 @@ const toggle = (event: MouseEvent, row: any) => {
         >
           <Column field="name" header="Name" style="width: 25%">
             <template #body="{ data }">
-              <router-link
-                :to="{ path: `/view-customer/${data.id}` }"
+              <!-- <router-link
+                :to="{ path: `/view-item/${data.id}` }"
                 class="text-blue-600 cursor-pointer"
               >
                 {{ data.name }}
-              </router-link>
+              </router-link> -->
+               <div
+                class="text-blue-600 cursor-pointer"
+              >
+                {{ data.name }}
+              </div> 
             </template>
           </Column>
-          <Column field="price" header="Price" style="width: 25%"></Column>
+          <Column field="price" header="Price" style="width: 25%">
+          <template #body="{ data }">
+            {{ '₹' + data.price }}
+          </template>
+          </Column>
           <Column field="description" header="description" style="width: 25%"></Column>
           <Column field="action" header="Actions" style="width: 25%">
             <template #body="{ data }">

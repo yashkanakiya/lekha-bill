@@ -57,15 +57,15 @@ export const useItemStore = defineStore("item", {
         });
     },
 
-    deleteItem(id) {
-      api
-        .delete(`/items/${id}`)
-        .then(() => {
-          this.items = this.items.filter((c) => c.id !== id);
-        })
-        .catch((error) => {
-          console.error("Error deleting item:", error);
-        });
+    async deleteItem(id) {
+      try {
+        await api.delete(`/items/${id}`);
+
+        this.items = this.items.filter((c) => c.id !== id);
+      } catch (error) {
+        console.error("Error deleting item:", error);
+        throw error.response?.data?.message || "Delete failed";
+      }
     },
   },
 });

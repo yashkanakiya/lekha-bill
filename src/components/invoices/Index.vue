@@ -2,6 +2,7 @@
 import { computed, onMounted, ref } from "vue";
 import { useInvoiceStore } from "../../stores/invoiceStore";
 import { useRouter } from "vue-router";
+import moment from "moment";
 
 import BaseTable from "../base-component/BaseTable.vue";
 import Button from "primevue/button";
@@ -114,8 +115,16 @@ const toggle = (event: MouseEvent, row: any) => {
             </template>
           </Column>
           <Column field="customer.name" header="Customer" style="width: 25%"></Column>
-          <Column field="grand_total" header="Total" style="width: 25%"></Column>
-          <Column field="created_at" header="Date" style="width: 25%"></Column>
+          <Column field="grand_total" header="Total" style="width: 25%">
+          <template #body="{ data }">
+            {{ '₹' + data.grand_total }}
+          </template>
+          </Column>
+          <Column field="created_at" header="Date" style="width: 25%">
+          <template #body="{ data }">
+            {{ moment(data.created_at).format('DD MMM YYYY') }}
+          </template>
+          </Column>
           <Column field="action" header="Actions" style="width: 25%">
             <template #body="{ data }">
               <i
