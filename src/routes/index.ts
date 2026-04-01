@@ -16,8 +16,9 @@ import Customers from "../components/customers/Index.vue";
 import CreateCustomer from "../components/customers/CreateCustomer.vue";
 import ViewCustomer from "../components/customers/ViewCustomer.vue";
 
-import Invoices from "../components/Invoices/Index.vue";
-import CreateInvoice from "../components/Invoices/CreateInvoice.vue";
+import Invoices from "../components/invoices/Index.vue";
+import CreateInvoice from "../components/invoices/CreateInvoice.vue";
+import ViewInvoice from "../components/invoices/ViewInvoice.vue";
 
 const routes = [
   {
@@ -96,6 +97,11 @@ const routes = [
         path: "/edit-invoice/:id",
         name: "Edit-Invoice",
         component: CreateInvoice,
+      },
+      {
+        path: "/view-invoice/:id",
+        name: "View-Invoice",
+        component: ViewInvoice,
       },
     ],
   },

@@ -57,7 +57,6 @@ export const useInvoiceStore = defineStore("invoice", {
     async fetchInvoice(id) {
       try {
         const response = await api.get(`/invoices/${id}`);
-        console.log(response.data);
         this.invoice = response.data;
       } catch (error) {
         console.error("Error fetching invoices:", error);

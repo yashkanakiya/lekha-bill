@@ -106,7 +106,7 @@ const toggle = (event: MouseEvent, row: any) => {
           <Column field="invoice_number" header="Invoice No" style="width: 25%">
             <template #body="{ data }">
               <router-link
-                :to="{ path: `/view-invoice/${data.id}` }"
+                :to="{ path: `/view-Invoice/${data.id}` }"
                 class="text-blue-600 cursor-pointer"
               >
                 {{ data.invoice_number }}
