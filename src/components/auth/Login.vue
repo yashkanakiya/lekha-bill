@@ -1,8 +1,8 @@
 <script setup lang="ts">
 
 import { useAuthStore } from "../../stores/authStore";
-import { useRouter } from "vue-router";
-import { ref, computed } from "vue";
+import { useRouter, useRoute } from "vue-router";
+import { ref, computed, onMounted } from "vue";
 import { useVuelidate } from "@vuelidate/core";
 import { required, helpers, minLength, email } from "@vuelidate/validators";
 import { useToast } from "primevue/usetoast";
@@ -14,6 +14,27 @@ import Button from "primevue/button";
 const toast = useToast();
 const authStore = useAuthStore();
 const router = useRouter();
+const route = useRoute();
+
+onMounted(() => {
+  if (route.query.verified) {
+    toast.add({
+      severity: 'success',
+      summary: 'Email Verified',
+      detail: 'Your email has been verified. Please login.',
+      life: 3000
+    })
+  }
+
+  if (route.query.error) {
+    toast.add({
+      severity: 'error',
+      summary: 'Verification Failed',
+      detail: route.query.error,
+      life: 3000
+    })
+  }
+})
 
 const rules = {
   email: {

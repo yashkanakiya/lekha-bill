@@ -3,7 +3,14 @@ import { useRouter } from "vue-router";
 import { useAuthStore } from "../../stores/authStore";
 import { ref, computed } from "vue";
 import { useVuelidate } from "@vuelidate/core";
-import { required, helpers, minLength, email, sameAs } from "@vuelidate/validators";
+import {
+  required,
+  helpers,
+  minLength,
+  email,
+  sameAs,
+} from "@vuelidate/validators";
+import { useToast } from "primevue/usetoast";
 
 import InputText from "primevue/inputtext";
 import Password from "primevue/password";
@@ -11,6 +18,7 @@ import Button from "primevue/button";
 
 const authStore = useAuthStore();
 const router = useRouter();
+const toast = useToast();
 
 const confirmPassword = ref("");
 
@@ -57,9 +65,20 @@ function registerHandle() {
       .register()
       .then(() => {
         router.push("/login");
+        toast.add({
+          severity: "success",
+          summary: "Register",
+          detail: "Invitation link sent successfully",
+          life: 3000,
+        });
       })
       .catch((error) => {
-        console.error("register failed:", error);
+        toast.add({
+          severity: "error",
+          summary: "Error",
+          detail: error?.response?.data?.message || "Register failed",
+          life: 3000,
+        });
       });
   }
 }
@@ -84,7 +103,7 @@ function registerHandle() {
           </h2>
         </div>
         <form class="space-y-6" @submit.prevent="registerHandle">
-           <div>
+          <div>
             <label class="block py-2 text-sm font-bold text-gray-700 mb-1"
               >Enter Name</label
             >
@@ -101,10 +120,7 @@ function registerHandle() {
               v-show="v$.name.$errors.length"
               class="text-red-500 text-sm mb-1 flex flex-col"
             >
-              <span
-                v-for="error in v$.name.$errors"
-                :key="error.$message"
-              >
+              <span v-for="error in v$.name.$errors" :key="error.$message">
                 * {{ error.$message }}
               </span>
             </div>
@@ -127,10 +143,7 @@ function registerHandle() {
               v-show="v$.email.$errors.length"
               class="text-red-500 text-sm mb-1 flex flex-col"
             >
-              <span
-                v-for="error in v$.email.$errors"
-                :key="error.$message"
-              >
+              <span v-for="error in v$.email.$errors" :key="error.$message">
                 * {{ error.$message }}
               </span>
             </div>
@@ -154,10 +167,7 @@ function registerHandle() {
               v-show="v$.password.$errors.length"
               class="text-red-500 text-sm mb-1 flex flex-col"
             >
-              <span
-                v-for="error in v$.password.$errors"
-                :key="error.$message"
-              >
+              <span v-for="error in v$.password.$errors" :key="error.$message">
                 * {{ error.$message }}
               </span>
             </div>
