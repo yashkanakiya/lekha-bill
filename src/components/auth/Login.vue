@@ -125,37 +125,6 @@ async function loginHandle() {
                     * {{ error.$message }}
                   </span>
                 </div>
-                <!-- <label
-                  for="email"
-                  class="block text-sm/6 font-medium text-gray-900"
-                >
-                  User name
-                </label>
-                <div
-                  v-show="v$.email.$errors.length"
-                  class="text-sm text-red-600 mt-1"
-                >
-                  <div>
-                    <span
-                      v-for="error in v$.email.$errors"
-                      :key="error.$uid"
-                    >
-                      *{{ error.$message }}
-                    </span>
-                  </div>
-                </div>
-
-                <div class="mt-2">
-                  <BaseInput
-                    v-model="email"
-                    type="text"
-                    name="email"
-                    id="email"
-                    class="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6"
-                    @blur="v$.email.$touch()"
-                    required
-                  />
-                </div> -->
               </div>
 
               <div>
