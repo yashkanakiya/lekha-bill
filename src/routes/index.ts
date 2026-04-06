@@ -113,7 +113,7 @@ const router = createRouter({
 });
 
 
-router.beforeEach(async (to, from, next) => {
+router.beforeEach(async (to) => {
   const authStore = useAuthStore();
 
   // Only call ONCE
@@ -130,14 +130,13 @@ router.beforeEach(async (to, from, next) => {
   const isLoggedIn = !!authStore.user;
 
   if (to.matched.some((record) => record.meta.requiresAuth) && !isLoggedIn) {
-    return next("/login");
+    return "/login";
   }
 
   if ((to.path === "/login" || to.path === "/register") && isLoggedIn) {
-    return next("/dashboard");
+    return "/dashboard";
   }
-
-  next();
+  return true;
 });
 
 

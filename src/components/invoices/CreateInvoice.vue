@@ -6,6 +6,9 @@ import { useInvoiceStore } from "../../stores/invoiceStore";
 import { useCustomerStore } from "../../stores/customerStore";
 import { useItemStore } from "../../stores/itemStore";
 import { useToast } from "primevue/usetoast";
+import type { InvoiceItem } from "../../types/Invoice";
+import type Item from "../../types/Item";
+import type Customer from "../../types/Customer";
 
 import Breadcrumb from "primevue/breadcrumb";
 import Card from "primevue/card";
@@ -25,6 +28,8 @@ const toast = useToast();
 
 const router = useRouter();
 
+console.log(router.currentRoute.value.params.id);
+
 onMounted(async () => {
   await customerStore.fetchCustomers();
   await itemStore.fetchItems();
@@ -37,16 +42,14 @@ onMounted(async () => {
 
       const inv = invoiceStore.invoice;
 
-      console.log(inv)
-
       if (inv) {
         // 🔥 Map basic fields
         invoiceData.value.invoice_number = inv.invoice_number;
-        invoiceData.value.customer_id = inv.customer.id;
+        invoiceData.value.customer_id = inv.customer?.id ?? null;
 
         // 🔥 Set selected customer (for Multiselect)
         invoiceData.value.selectedCustomer =
-          customersData.value.find((c) => c.id === inv.customer.id) || null;
+          customersData.value.find((c) => c.id === inv.customer?.id) || null;
 
         // 🔥 Map items
         invoiceData.value.items = inv.items.map((item) => {
@@ -62,6 +65,8 @@ onMounted(async () => {
             discount_type: item.discount_type || "fixed",
             discount_value: item.discount_value || 0,
             tax_percentage: item.tax_percentage || 0,
+            id: item.id ?? undefined,
+            total: item.total ?? undefined,
           };
         });
 
@@ -109,13 +114,13 @@ const subtotal = computed(() => {
   }, 0);
 });
 
-const selectItem = (item, row) => {
+const selectItem = (item: Item, row: InvoiceItem) => {
   row.item_id = item.id;
   row.item_name = item.name;
-  row.price = item.price;
+  row.price = item.price ?? 0;
 };
 
-const calculateItemTotal = (item) => {
+const calculateItemTotal = (item: InvoiceItem) => {
   let total = item.price * item.quantity;
 
   // Discount
@@ -153,15 +158,14 @@ async function submitDataFunc() {
         : "Invoice Created Successfully",
       life: 3000,
     });
-  } catch (error) {
+  } catch (error: any) {
     console.error("Error submitting Invoice data:", error);
     toast.add({
       severity: "warn",
       summary: isEdit.value ? "Invoice Updated" : "Invoice Created",
       detail:
-        error?.response?.data?.message || isEdit.value
-          ? "Invoice update failed."
-          : "Invoice creation failed.",
+        error.response.data.message ||
+        (isEdit.value ? "Invoice update failed." : "Invoice creation failed."),
       life: 3000,
     });
   } finally {
@@ -222,7 +226,9 @@ onBeforeUnmount(() => {
             placeholder="Select Customer"
             track-by="id"
             label="name"
-            @select="(val) => (invoiceData.customer_id = val.id)"
+            @select="
+              (val: Customer) => (invoiceData.customer_id = val.id ?? null)
+            "
           />
         </div>
         <div>
@@ -268,7 +274,7 @@ onBeforeUnmount(() => {
               track-by="id"
               label="name"
               placeholder="Select Item"
-              @select="(val) => selectItem(val, data)"
+              @select="(val: Item) => selectItem(val, data)"
             />
           </template>
         </Column>
@@ -314,7 +320,7 @@ onBeforeUnmount(() => {
               "
               :currency="data.discount_type === 'fixed' ? 'INR' : undefined"
               :suffix="data.discount_type === 'percentage' ? '%' : undefined"
-              :max="data.discount_type === 'percentage' ? 100 : null"
+              :max="data.discount_type === 'percentage' ? 100 : undefined"
             />
           </template>
         </Column>

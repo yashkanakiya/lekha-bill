@@ -4,7 +4,6 @@ import { useInvoiceStore } from "../../stores/invoiceStore";
 import { useRouter } from "vue-router";
 import moment from "moment";
 
-import BaseTable from "../base-component/BaseTable.vue";
 import Button from "primevue/button";
 import Card from "primevue/card";
 import DataTable from "primevue/datatable";
@@ -12,17 +11,17 @@ import Column from "primevue/column";
 import Menu from "primevue/menu";
 import Dialog from "primevue/dialog";
 import { useToast } from "primevue/usetoast";
-
+import type { Invoice } from "../../types/Invoice";
 
 const invoiceStore = useInvoiceStore();
 const router = useRouter();
 const toast = useToast();
 
 const menu = ref();
-const selectedRow = ref(null);
+const selectedRow = ref<Invoice | null>(null);
 const showDeleteDialog = ref(false);
 
-onMounted(async() => {
+onMounted(async () => {
   await invoiceStore.fetchInvoices();
 });
 
@@ -31,18 +30,19 @@ const invoices = computed(() => invoiceStore.invoices);
 const loading = computed(() => invoiceStore.invoices.length === 0);
 
 const itemsOptions = computed(() => {
-  if (!selectedRow.value) return [];
+  const row = selectedRow.value;
+  if (!row) return [];
 
   return [
     {
       label: "View",
       icon: "pi pi-eye",
-      command: () => router.push(`/view-invoice/${selectedRow.value.id}`),
+      command: () => router.push(`/view-invoice/${row.id}`),
     },
     {
       label: "Edit",
       icon: "pi pi-pencil",
-      command: () => router.push(`/edit-invoice/${selectedRow.value.id}`),
+      command: () => router.push(`/edit-invoice/${row.id}`),
     },
     {
       label: "Delete",
@@ -61,16 +61,27 @@ function onCreateEvent() {
 const confirmDelete = async () => {
   if (!selectedRow.value) return;
 
-  await invoiceStore.deleteInvoice(selectedRow.value.id);
+  try {
+    await invoiceStore.deleteInvoice(selectedRow.value.id);
 
-  showDeleteDialog.value = false;
+    showDeleteDialog.value = false;
 
-  toast.add({
-    severity: "success",
-    summary: "Invoice Deleted",
-    detail: "Invoice Deleted Successfully",
-    life: 3000,
-  });
+    toast.add({
+      severity: "success",
+      summary: "Invoice Deleted",
+      detail: "Invoice Deleted Successfully",
+      life: 3000,
+    });
+  } catch (error) {
+    toast.add({
+      severity: "error",
+      summary: "Delete Failed",
+      detail: error,
+      life: 3000,
+    });
+  } finally {
+    showDeleteDialog.value = false;
+  }
 };
 
 const toggle = (event: MouseEvent, row: any) => {
@@ -114,16 +125,20 @@ const toggle = (event: MouseEvent, row: any) => {
               </router-link>
             </template>
           </Column>
-          <Column field="customer.name" header="Customer" style="width: 25%"></Column>
+          <Column
+            field="customer.name"
+            header="Customer"
+            style="width: 25%"
+          ></Column>
           <Column field="grand_total" header="Total" style="width: 25%">
-          <template #body="{ data }">
-            {{ '₹' + data.grand_total }}
-          </template>
+            <template #body="{ data }">
+              {{ "₹" + data.grand_total }}
+            </template>
           </Column>
           <Column field="created_at" header="Date" style="width: 25%">
-          <template #body="{ data }">
-            {{ moment(data.created_at).format('DD MMM YYYY') }}
-          </template>
+            <template #body="{ data }">
+              {{ moment(data.created_at).format("DD MMM YYYY") }}
+            </template>
           </Column>
           <Column field="action" header="Actions" style="width: 25%">
             <template #body="{ data }">
@@ -154,7 +169,7 @@ const toggle = (event: MouseEvent, row: any) => {
       <Button
         label="Cancel"
         icon="pi pi-times"
-        class="px-4 py-2 bg-transparent! text-black! rounded  focus:outline-none! focus:ring-1! focus:ring-gray-500!"
+        class="px-4 py-2 bg-transparent! text-black! rounded focus:outline-none! focus:ring-1! focus:ring-gray-500!"
         @click="showDeleteDialog = false"
       />
       <Button

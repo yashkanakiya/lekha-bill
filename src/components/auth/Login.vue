@@ -1,10 +1,9 @@
 <script setup lang="ts">
-
 import { useAuthStore } from "../../stores/authStore";
 import { useRouter, useRoute } from "vue-router";
-import { ref, computed, onMounted } from "vue";
+import { computed, onMounted } from "vue";
 import { useVuelidate } from "@vuelidate/core";
-import { required, helpers, minLength, email } from "@vuelidate/validators";
+import { required, helpers, minLength } from "@vuelidate/validators";
 import { useToast } from "primevue/usetoast";
 
 import InputText from "primevue/inputtext";
@@ -19,28 +18,30 @@ const route = useRoute();
 onMounted(() => {
   if (route.query.verified) {
     toast.add({
-      severity: 'success',
-      summary: 'Email Verified',
-      detail: 'Your email has been verified. Please login.',
-      life: 3000
-    })
+      severity: "success",
+      summary: "Email Verified",
+      detail: "Your email has been verified. Please login.",
+      life: 3000,
+    });
   }
 
   if (route.query.error) {
     toast.add({
-      severity: 'error',
-      summary: 'Verification Failed',
+      severity: "error",
+      summary: "Verification Failed",
       detail: route.query.error,
-      life: 3000
-    })
+      life: 3000,
+    });
   }
-})
+});
 
 const rules = {
   email: {
     required: helpers.withMessage("email is required", required),
-    email: helpers.withMessage("Invalid email format", (value) =>
-      /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value),
+    email: helpers.withMessage(
+      "Invalid email format",
+      (value: unknown) =>
+        typeof value === "string" && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value),
     ),
   },
   password: {
@@ -62,22 +63,20 @@ async function loginHandle() {
   if (v$.value.$invalid) return;
 
   try {
-    const res = await authStore.login();
+    await authStore.login();
 
     router.push("/");
     toast.add({
       severity: "success",
       summary: "Login",
-      detail: res?.data?.message || "Login Successfully",
+      detail: "Login Successfully",
       life: 3000,
     });
-
-  } catch (error) {
+  } catch (error: any) {
     toast.add({
       severity: "error",
       summary: "Error",
-      detail:
-        error?.response?.data?.message || "Login failed",
+      detail: error.response.data.message || "Login failed",
       life: 3000,
     });
   }
@@ -121,7 +120,10 @@ async function loginHandle() {
                   v-show="v$.email.$errors.length"
                   class="text-red-500 text-sm mb-1 flex flex-col"
                 >
-                  <span v-for="error in v$.email.$errors" :key="error.$message">
+                  <span
+                    v-for="error in v$.email.$errors"
+                    :key="String(error.$message)"
+                  >
                     * {{ error.$message }}
                   </span>
                 </div>
@@ -147,7 +149,7 @@ async function loginHandle() {
                 >
                   <span
                     v-for="error in v$.password.$errors"
-                    :key="error.$message"
+                    :key="String(error.$message)"
                   >
                     * {{ error.$message }}
                   </span>
@@ -155,42 +157,6 @@ async function loginHandle() {
               </div>
 
               <div class="flex items-center justify-between">
-                <!-- <div class="flex gap-3">
-                  <div class="flex h-6 shrink-0 items-center">
-                    <div class="group grid size-4 grid-cols-1">
-                      <input
-                        type="checkbox"
-                        id="remember-me"
-                        name="remember-me"
-                        class="col-start-1 row-start-1 appearance-none rounded border border-gray-300 bg-white checked:border-indigo-600 checked:bg-indigo-600 indeterminate:border-indigo-600 indeterminate:bg-indigo-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 disabled:border-gray-300 disabled:bg-gray-100 disabled:checked:bg-gray-100 forced-colors:appearance-auto"
-                      />
-                      <svg
-                        class="pointer-events-none col-start-1 row-start-1 size-3.5 self-center justify-self-center stroke-white group-has-[:disabled]:stroke-gray-950/25"
-                        viewBox="0 0 14 14"
-                        fill="none"
-                      >
-                        <path
-                          class="opacity-0 group-has-[:checked]:opacity-100"
-                          d="M3 8L6 11L11 3.5"
-                          stroke-width="2"
-                          stroke-linecap="round"
-                          stroke-linejoin="round"
-                        />
-                        <path
-                          class="opacity-0 group-has-[:indeterminate]:opacity-100"
-                          d="M3 7H11"
-                          stroke-width="2"
-                          stroke-linecap="round"
-                          stroke-linejoin="round"
-                        />
-                      </svg>
-                    </div>
-                  </div>
-                  <label for="remember-me" class="block text-sm/6 text-gray-900"
-                    >Remember me</label
-                  >
-                </div> -->
-
                 <div class="text-sm/6">
                   <router-link
                     :to="{ path: `/register` }"

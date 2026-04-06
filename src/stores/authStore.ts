@@ -1,9 +1,14 @@
 import { defineStore } from "pinia";
 import api, { initCSRF } from "../plugins/axios";
 
+type User = {
+  name: string;
+  email: string;
+};
+
 export const useAuthStore = defineStore("auth", {
   state: () => ({
-    user: null,
+    user: null as User | null,
     isFetching: false,
     checked: false,
     userData: {
@@ -15,7 +20,7 @@ export const useAuthStore = defineStore("auth", {
 
   actions: {
     // Update Userdata
-    updateUserData(data) {
+    updateUserData(data: any) {
       this.userData = { ...this.userData, ...data };
     },
 

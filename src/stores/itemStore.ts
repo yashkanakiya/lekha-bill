@@ -1,11 +1,12 @@
 import { defineStore } from "pinia";
 import api from "../plugins/axios";
+import type Item from "../types/Item";
 
 export const useItemStore = defineStore("item", {
   state: () => {
     return {
-      items: [],
-      item: null,
+      items: [] as Item[],
+      item: null as Item | null,
     };
   },
 
@@ -21,7 +22,7 @@ export const useItemStore = defineStore("item", {
         });
     },
 
-    addItem(params) {
+    addItem(params: any) {
       api
         .post("/items", params)
         .then((response) => {
@@ -32,7 +33,7 @@ export const useItemStore = defineStore("item", {
         });
     },
 
-    updateItem(id, params) {
+    updateItem(id: any, params: any) {
       api
         .put(`/items/${id}`, params)
         .then((response) => {
@@ -44,8 +45,8 @@ export const useItemStore = defineStore("item", {
         });
     },
 
-    async fetchItem(id) {
-      const response = await api
+    async fetchItem(id: any) {
+      await api
         .get(`/items/${id}`)
         .then((response) => {
           this.item = response.data;
@@ -57,12 +58,12 @@ export const useItemStore = defineStore("item", {
         });
     },
 
-    async deleteItem(id) {
+    async deleteItem(id: any) {
       try {
         await api.delete(`/items/${id}`);
 
         this.items = this.items.filter((c) => c.id !== id);
-      } catch (error) {
+      } catch (error: any) {
         console.error("Error deleting item:", error);
         throw error.response?.data?.message || "Delete failed";
       }

@@ -1,11 +1,12 @@
 import { defineStore } from "pinia";
 import api from "../plugins/axios";
+import type Customer from "../types/Customer";
 
 export const useCustomerStore = defineStore("customer", {
   state: () => {
     return {
-      customers: [],
-      customer: null,
+      customers: [] as Customer[],
+      customer: null as Customer | null,
     };
   },
 
@@ -21,7 +22,7 @@ export const useCustomerStore = defineStore("customer", {
         });
     },
 
-    addCustomer(params) {
+    addCustomer(params: any) {
       api
         .post("/customers", params)
         .then((response) => {
@@ -32,7 +33,7 @@ export const useCustomerStore = defineStore("customer", {
         });
     },
 
-    updateCustomer(id, params) {
+    updateCustomer(id: any, params: any) {
       api
         .put(`/customers/${id}`, params)
         .then((response) => {
@@ -44,8 +45,8 @@ export const useCustomerStore = defineStore("customer", {
         });
     },
 
-    async fetchCustomer(id) {
-      const response = await api
+    async fetchCustomer(id: any) {
+      await api
         .get(`/customers/${id}`)
         .then((response) => {
           this.customer = response.data;
@@ -57,12 +58,12 @@ export const useCustomerStore = defineStore("customer", {
         });
     },
 
-    async deleteCustomer(id) {
+    async deleteCustomer(id: any) {
       try {
         await api.delete(`/customers/${id}`);
 
         this.customers = this.customers.filter((c) => c.id !== id);
-      } catch (error) {
+      } catch (error: any) {
         console.error("Error deleting customer:", error);
         throw error.response?.data?.message || "Delete failed";
       }

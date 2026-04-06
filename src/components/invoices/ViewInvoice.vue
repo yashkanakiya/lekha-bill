@@ -14,8 +14,6 @@ onMounted(async () => {
   await invoiceStore.fetchInvoice(router.currentRoute.value.params.id);
 });
 
-const invoiceDataView = computed(() => invoiceStore.invoice);
-
 const navLinks = computed(() => [
   { label: "Invoices", to: "/invoices" },
   { label: `${invoiceStore.invoice?.invoice_number}` },

@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import { useItemStore } from "../../stores/itemStore";
 import { ref, computed, onMounted } from "vue";
-import { useRouter, useRoute } from "vue-router";
+import { useRouter } from "vue-router";
 import { useVuelidate } from "@vuelidate/core";
-import { required, helpers, numeric, minValue, maxValue } from "@vuelidate/validators";
+import { required, helpers, numeric, minValue } from "@vuelidate/validators";
 import { useToast } from "primevue/usetoast";
 
 import InputText from "primevue/inputtext";
@@ -14,7 +14,6 @@ import Card from "primevue/card";
 import Breadcrumb from "primevue/breadcrumb";
 
 const router = useRouter();
-const route = useRoute();
 const itemStore = useItemStore();
 const toast = useToast();
 
@@ -22,7 +21,7 @@ const isLoading = ref(false);
 
 const itemData = ref({
   name: "",
-  price: null,
+  price: null as number | null,
   description: "",
 });
 
@@ -40,7 +39,7 @@ onMounted(async () => {
       if (itemStore.item) {
         itemData.value = {
           name: itemStore.item.name || "",
-          price: itemStore.item.price || null,
+          price: itemStore.item.price ?? null,
           description: itemStore.item.description || "",
         };
       }
@@ -97,13 +96,13 @@ async function submitDataFunc() {
           : "Item Created Successfully",
         life: 3000,
       });
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error submitting item data:", error);
       toast.add({
         severity: "warn",
         summary: isEdit.value ? "Item Updated" : "Item Created",
         detail:
-          error?.response?.data?.message || isEdit.value
+          error.response.data.message || isEdit.value
             ? "Item update failed."
             : "Item creation failed.",
         life: 3000,
@@ -170,7 +169,7 @@ async function submitDataFunc() {
             >
               <span
                 v-for="error in v$.itemData.name.$errors"
-                :key="error.$message"
+                :key="String(error.$message)"
               >
                 * {{ error.$message }}
               </span>
@@ -195,7 +194,7 @@ async function submitDataFunc() {
             >
               <span
                 v-for="error in v$.itemData.price.$errors"
-                :key="error.$message"
+                :key="String(error.$message)"
               >
                 * {{ error.$message }}
               </span>
@@ -220,7 +219,7 @@ async function submitDataFunc() {
             >
               <span
                 v-for="error in v$.itemData.description.$errors"
-                :key="error.$message"
+                :key="String(error.$message)"
               >
                 * {{ error.$message }}
               </span>

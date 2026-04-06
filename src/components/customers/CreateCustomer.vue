@@ -1,12 +1,11 @@
 <script setup lang="ts">
 import { useCustomerStore } from "../../stores/customerStore";
 import { ref, computed, onMounted } from "vue";
-import { useRouter, useRoute } from "vue-router";
+import { useRouter } from "vue-router";
 import { useVuelidate } from "@vuelidate/core";
 import { required, helpers, numeric } from "@vuelidate/validators";
 import { useToast } from "primevue/usetoast";
 
-import FloatLabel from "primevue/floatlabel";
 import InputText from "primevue/inputtext";
 import Textarea from "primevue/textarea";
 import Button from "primevue/button";
@@ -14,7 +13,6 @@ import Card from "primevue/card";
 import Breadcrumb from "primevue/breadcrumb";
 
 const router = useRouter();
-const route = useRoute();
 const customerStore = useCustomerStore();
 const toast = useToast();
 
@@ -23,14 +21,14 @@ const isLoading = ref(false);
 const customerData = ref({
   name: "",
   email: "",
-  phone: null,
+  phone: null as string | null,
   address: "",
 });
 
 const isEdit = computed(() => router.currentRoute.value.params.id);
 const navLinks = computed(() => [
   { label: "Customers", to: "/customers" },
-  {  label: isEdit.value ? "Edit Customer" : "Create Customer"}
+  { label: isEdit.value ? "Edit Customer" : "Create Customer" },
 ]);
 
 onMounted(async () => {
@@ -42,7 +40,7 @@ onMounted(async () => {
         customerData.value = {
           name: customerStore.customer.name || "",
           email: customerStore.customer.email || "",
-          phone: customerStore.customer.phone || null,
+          phone: customerStore.customer.phone ?? null,
           address: customerStore.customer.address || "",
         };
       }
@@ -61,8 +59,10 @@ const rules = {
     },
     email: {
       required: helpers.withMessage("Email is required", required),
-      email: helpers.withMessage("Invalid email format", (value) =>
-        /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value),
+      email: helpers.withMessage(
+        "Invalid email format",
+        (value: unknown) =>
+          typeof value === "string" && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value),
       ),
     },
     phone: {
@@ -77,9 +77,7 @@ const rules = {
 
 const v$ = useVuelidate(rules, { customerData });
 
-const buttonName = computed(() =>
-  isEdit.value ? "Edit" : "Submit",
-);
+const buttonName = computed(() => (isEdit.value ? "Edit" : "Submit"));
 
 async function submitDataFunc() {
   isLoading.value = true;
@@ -87,37 +85,35 @@ async function submitDataFunc() {
 
   if (v$.value.$invalid) {
     return;
-  } else {
-    try {
-      if (isEdit.value) {
-        await customerStore.updateCustomer(isEdit.value, customerData.value);
-      } else {
-        await customerStore.addCustomer(customerData.value);
-      }
-      isLoading.value = false;
-      router.push("/customers");
-      toast.add({
-        severity: "success",
-        summary: isEdit.value ? "Customer Updated" : "Customer Created",
-        detail: isEdit.value
-          ? "Customer Updated Successfully"
-          : "Customer Created Successfully",
-        life: 3000,
-      });
-    } catch (error) {
-      console.error("Error submitting customer data:", error);
-      toast.add({
-        severity: "warn",
-        summary: isEdit.value ? "Customer Updated" : "Customer Created",
-        detail:
-          error?.response?.data?.message || isEdit.value
-            ? "Customer update failed."
-            : "Customer creation failed.",
-        life: 3000,
-      });
-    } finally {
-      isLoading.value = false;
+  }
+  try {
+    if (isEdit.value) {
+      await customerStore.updateCustomer(isEdit.value, customerData.value);
+    } else {
+      await customerStore.addCustomer(customerData.value);
     }
+    isLoading.value = false;
+    router.push("/customers");
+    toast.add({
+      severity: "success",
+      summary: isEdit.value ? "Customer Updated" : "Customer Created",
+      detail: isEdit.value
+        ? "Customer Updated Successfully"
+        : "Customer Created Successfully",
+      life: 3000,
+    });
+  } catch (error: any) {
+    toast.add({
+      severity: "warn",
+      summary: isEdit.value ? "Customer Updated" : "Customer Created",
+      detail:
+        error.response.data.message || isEdit.value
+          ? "Customer update failed."
+          : "Customer creation failed.",
+      life: 3000,
+    });
+  } finally {
+    isLoading.value = false;
   }
 }
 </script>
@@ -177,7 +173,7 @@ async function submitDataFunc() {
             >
               <span
                 v-for="error in v$.customerData.name.$errors"
-                :key="error.$message"
+                :key="String(error.$message)"
               >
                 * {{ error.$message }}
               </span>
@@ -201,7 +197,7 @@ async function submitDataFunc() {
             >
               <span
                 v-for="error in v$.customerData.email.$errors"
-                :key="error.$message"
+                :key="String(error.$message)"
               >
                 * {{ error.$message }}
               </span>
@@ -225,7 +221,7 @@ async function submitDataFunc() {
             >
               <span
                 v-for="error in v$.customerData.phone.$errors"
-                :key="error.$message"
+                :key="String(error.$message)"
               >
                 * {{ error.$message }}
               </span>
@@ -250,7 +246,7 @@ async function submitDataFunc() {
             >
               <span
                 v-for="error in v$.customerData.address.$errors"
-                :key="error.$message"
+                :key="String(error.$message)"
               >
                 * {{ error.$message }}
               </span>
@@ -259,7 +255,7 @@ async function submitDataFunc() {
           <Button
             :label="buttonName"
             :disabled="isLoading"
-            icon= "pi pi-save"
+            icon="pi pi-save"
             type="submit"
             class="px-4 py-2 bg-blue-500! text-white rounded hover:bg-blue-600! focus:outline-none focus:ring-1! focus:ring-blue-500!"
           />

@@ -2,8 +2,8 @@
 import { computed, onMounted, ref } from "vue";
 import { useCustomerStore } from "../../stores/customerStore";
 import { useRouter } from "vue-router";
+import type Customer from "../../types/Customer";
 
-import BaseTable from "../base-component/BaseTable.vue";
 import Button from "primevue/button";
 import Card from "primevue/card";
 import DataTable from "primevue/datatable";
@@ -17,7 +17,7 @@ const router = useRouter();
 const toast = useToast();
 
 const menu = ref();
-const selectedRow = ref(null);
+const selectedRow = ref<Customer | null>(null);
 const showDeleteDialog = ref(false);
 
 onMounted(() => {
@@ -29,18 +29,19 @@ const customers = computed(() => customerStore.customers);
 const loading = computed(() => customerStore.customers.length === 0);
 
 const itemsOptions = computed(() => {
-  if (!selectedRow.value) return [];
+  const row = selectedRow.value;
+  if (!row) return [];
 
   return [
     {
       label: "View",
       icon: "pi pi-eye",
-      command: () => router.push(`/view-customer/${selectedRow.value.id}`),
+      command: () => router.push(`/view-customer/${row.id}`),
     },
     {
       label: "Edit",
       icon: "pi pi-pencil",
-      command: () => router.push(`/edit-customer/${selectedRow.value.id}`),
+      command: () => router.push(`/edit-customer/${row.id}`),
     },
     {
       label: "Delete",

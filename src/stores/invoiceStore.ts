@@ -1,29 +1,29 @@
 import { defineStore } from "pinia";
 import api from "../plugins/axios";
+import type { Invoice, InvoiceForm, InvoiceItem } from "../types/Invoice";
 
 export const useInvoiceStore = defineStore("invoice", {
   state: () => ({
-    invoices: [],
-    invoice: null,
+    invoices: [] as Invoice[],
+    invoice: null as Invoice | null,
 
     invoiceData: {
       customer_id: null,
       invoice_number: "",
-      selectedCustomer: null, // UI only
-      invoice_number: "",
+      selectedCustomer: null,
       items: [
         {
-          selectedItem: null, // UI only
+          selectedItem: null,
           item_id: null,
           item_name: "",
           price: 0,
           quantity: 1,
-          discount_type: "fixed", // 'percentage' | 'fixed'
+          discount_type: "fixed",
           discount_value: 0,
           tax_percentage: 0,
         },
-      ],
-    },
+      ] as InvoiceItem[],
+    } as InvoiceForm,
   }),
 
   actions: {
@@ -54,7 +54,7 @@ export const useInvoiceStore = defineStore("invoice", {
       }
     },
 
-    async fetchInvoice(id) {
+    async fetchInvoice(id: any) {
       try {
         const response = await api.get(`/invoices/${id}`);
         this.invoice = response.data;
@@ -76,7 +76,7 @@ export const useInvoiceStore = defineStore("invoice", {
       }
     },
 
-    async updateInvoice(id) {
+    async updateInvoice(id: any) {
       try {
         const payload = this.buildPayload();
 
@@ -88,24 +88,23 @@ export const useInvoiceStore = defineStore("invoice", {
       }
     },
 
-    // updateCustomer(id, params) {
-    //   api
-    //     .put(`/customers/${id}`, params)
-    //     .then((response) => {
-    //       const index = this.customers.findIndex((c) => c.id === id);
-    //       if (index !== -1) this.customers[index] = response.data;
-    //     })
-    //     .catch((error) => {
-    //       console.error("Error updating customer:", error);
-    //     });
-    // },
-
     async fetchNextInvoiceNumber() {
       try {
         const res = await api.get("/invoices/next-number");
         this.invoiceData.invoice_number = res.data.invoice_number;
       } catch (err) {
         console.error(err);
+      }
+    },
+
+    async deleteInvoice(id: any) {
+      try {
+        await api.delete(`/invoice/${id}`);
+
+        this.invoices = this.invoices.filter((c) => c.id !== id);
+      } catch (error: any) {
+        console.error("Error deleting invoice:", error);
+        throw error.response?.data?.message || "Delete failed";
       }
     },
 

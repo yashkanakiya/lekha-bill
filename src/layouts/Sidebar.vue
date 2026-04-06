@@ -8,7 +8,6 @@ import {
   Bars3Icon,
 } from "@heroicons/vue/20/solid";
 import {
-  CalendarIcon,
   ChartPieIcon,
   DocumentDuplicateIcon,
   FolderIcon,
@@ -31,15 +30,15 @@ const showLogoutDialog = ref(false);
 
 const navigation = [
   { name: "Dashboard", to: "/dashboard", icon: HomeIcon },
-  {
-    name: "Teams",
-    icon: UsersIcon,
-    children: [
-      { name: "Engineering", to: "#" },
-      { name: "Human Resources", to: "#" },
-      { name: "Customer Success", to: "#" },
-    ],
-  },
+  // {
+  //   name: "Teams",
+  //   icon: UsersIcon,
+  //   children: [
+  //     { name: "Engineering", to: "#" },
+  //     { name: "Human Resources", to: "#" },
+  //     { name: "Customer Success", to: "#" },
+  //   ],
+  // },
   {
     name: "Items",
     to: "/items",
@@ -65,6 +64,14 @@ const toggleSidebar = () => {
 
 const closeSidebar = () => {
   isSidebarOpen.value = false;
+};
+
+const isMobile = () => window.innerWidth < 768;
+
+const getNavClass = (to?: string) => {
+  return isActive(to ?? "")
+    ? "bg-gray-100"
+    : "hover:bg-gray-50";
 };
 
 async function handleLogout() {
@@ -130,7 +137,7 @@ async function handleLogout() {
                 <router-link v-if="!item.children" :to="item.to">
                   <div
                     :class="[
-                      isActive(item.to) ? 'bg-gray-100' : 'hover:bg-gray-50',
+                      getNavClass(item.to),
                       'group flex gap-x-3 rounded-md p-2 text-sm/6 font-semibold text-gray-700',
                     ]"
                   >
@@ -148,7 +155,7 @@ async function handleLogout() {
                   <DisclosureButton
                     @click="isSidebarOpen = false"
                     :class="[
-                      isActive(item.to) ? 'bg-gray-100' : 'hover:bg-gray-50',
+                      getNavClass(item.to),
                       'flex w-full items-center gap-x-3 rounded-md p-2 text-left text-sm/6 font-semibold text-gray-700',
                     ]"
                   >
@@ -175,9 +182,7 @@ async function handleLogout() {
                       >
                         <div
                           :class="[
-                            isActive(subItem.to)
-                              ? 'bg-gray-100'
-                              : 'hover:bg-gray-50',
+                            getNavClass(subItem.to),
                             'block rounded-md py-2 pl-9 pr-2 text-sm/6 text-gray-700',
                           ]"
                         >
@@ -244,7 +249,7 @@ async function handleLogout() {
     <!-- Main content -->
     <main
       class="flex-1 overflow-y-auto bg-gray-50 pt-16 md:pt-8 p-8"
-      @click="isSidebarOpen && window.innerWidth < 768 ? closeSidebar() : null"
+      @click="isSidebarOpen && isMobile() ? closeSidebar() : null"
     >
       <router-view />
     </main>

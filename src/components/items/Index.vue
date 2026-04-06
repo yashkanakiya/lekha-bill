@@ -2,6 +2,7 @@
 import { computed, onMounted, ref } from "vue";
 import { useItemStore } from "../../stores/itemStore";
 import { useRouter } from "vue-router";
+import type Item from "../../types/Item";
 
 import Button from "primevue/button";
 import Card from "primevue/card";
@@ -17,7 +18,7 @@ const router = useRouter();
 const toast = useToast();
 
 const menu = ref();
-const selectedRow = ref(null);
+const selectedRow = ref<Item | null>(null);
 const showDeleteDialog = ref(false);
 
 onMounted(() => {
@@ -29,13 +30,14 @@ const items = computed(() => itemStore.items);
 const loading = computed(() => itemStore.items.length === 0);
 
 const itemsOptions = computed(() => {
-  if (!selectedRow.value) return [];
+   const row = selectedRow.value;
+  if (!row) return [];
 
   return [
     {
       label: "Edit",
       icon: "pi pi-pencil",
-      command: () => router.push(`/edit-item/${selectedRow.value.id}`),
+      command: () => router.push(`/edit-item/${row.id}`),
     },
     {
       label: "Delete",
