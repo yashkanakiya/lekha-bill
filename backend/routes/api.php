@@ -48,10 +48,9 @@ Route::get('/email/verify/{id}/{hash}', function (Request $request, $id, $hash) 
 })->middleware(['signed'])->name('verification.verify');
 
 // Protected route
-Route::middleware('api')->group(function () {
-    Route::get('/user', function (Request $request) {
-        return $request->user();
-    })->middleware('auth:sanctum');
+// Route::middleware('auth:sanctum')->get('/user', [AuthController::class, 'user']);
+Route::middleware(['web', 'auth:sanctum'])->get('/user', function (Request $request) {
+    return $request->user();
 });
 
 // Customer route

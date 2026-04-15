@@ -21,12 +21,20 @@ export default defineConfig({
   //     },
   //   },
   // },
-  server: {
-    host: true,
-    port: 5173,
-    proxy: {
-      "/api": "http://nginx_server",
-      "/sanctum": "http://nginx_server",
-    },
-  },
+  // server: {
+  //   host: true,
+  //   port: 5173,
+  //   proxy: {
+  //     "/api": {
+  //       target: "http://nginx_server",
+  //       changeOrigin: true,
+  //       secure: false,
+  //     },
+  //     "/sanctum": {
+  //       target: "http://nginx_server",
+  //       changeOrigin: true,
+  //       secure: false,
+  //     },
+  //   },
+  // },
 });

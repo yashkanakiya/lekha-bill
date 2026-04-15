@@ -48,6 +48,7 @@ export const useAuthStore = defineStore("auth", {
         // fetch user after login
         await this.fetchUser();
       } catch (error) {
+        this.user = null;
         console.error("Login failed:", error);
         this.isFetching = false;
         throw error;
@@ -80,6 +81,7 @@ export const useAuthStore = defineStore("auth", {
         this.user = res.data;
       } catch (error) {
         this.user = null;
+        throw error;
       }
     },
 
