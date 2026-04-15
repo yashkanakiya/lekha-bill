@@ -1,38 +1,23 @@
-# Use PHP with Apache
-FROM php:8.3-apache
+FROM php:8.3-fpm
 
-# Install system dependencies
+# Install dependencies
 RUN apt-get update && apt-get install -y \
-    git \
-    unzip \
-    curl \
-    libpng-dev \
-    libonig-dev \
-    libxml2-dev \
-    zip
+    git curl zip unzip libpng-dev libonig-dev libxml2-dev
 
 # Install PHP extensions
-RUN docker-php-ext-install pdo pdo_mysql mbstring exif pcntl bcmath gd
-
-# Enable Apache rewrite
-RUN a2enmod rewrite
-
-# Set working directory
-WORKDIR /var/www/html
-
-# Copy project
-COPY . .
+RUN docker-php-ext-install pdo_mysql mbstring exif pcntl bcmath gd
 
 # Install Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
-# Install Laravel dependencies
+WORKDIR /var/www
+
+COPY . .
+
 RUN composer install
 
-# Set permissions
-RUN chown -R www-data:www-data /var/www/html
+RUN chmod -R 777 storage bootstrap/cache
 
-# Apache config (important for Laravel)
-RUN sed -i 's!/var/www/html!/var/www/html/public!g' /etc/apache2/sites-available/000-default.conf
+EXPOSE 9000
 
-EXPOSE 80
+CMD ["php-fpm"]

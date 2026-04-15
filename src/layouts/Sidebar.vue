@@ -30,15 +30,15 @@ const showLogoutDialog = ref(false);
 
 const navigation = [
   { name: "Dashboard", to: "/dashboard", icon: HomeIcon },
-  // {
-  //   name: "Teams",
-  //   icon: UsersIcon,
-  //   children: [
-  //     { name: "Engineering", to: "#" },
-  //     { name: "Human Resources", to: "#" },
-  //     { name: "Customer Success", to: "#" },
-  //   ],
-  // },
+  {
+    name: "Teams",
+    icon: UsersIcon,
+    children: [
+      { name: "Engineering", to: "#" },
+      { name: "Human Resources", to: "#" },
+      { name: "Customer Success", to: "#" },
+    ],
+  },
   {
     name: "Items",
     to: "/items",

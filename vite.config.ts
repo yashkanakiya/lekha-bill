@@ -6,11 +6,27 @@ import tailwindcss from "@tailwindcss/vite";
 export default defineConfig({
   plugins: [vue(), tailwindcss()],
   // server: {
+  //   host: true,
+  //   port: 5173,
   //   proxy: {
   //     "/api": {
-  //       target: "http://127.0.0.1:8000",
+  //       target: "http://localhost:8000",
   //       changeOrigin: true,
+  //       secure: false,
+  //     },
+  //     "/sanctum": {
+  //       target: "http://localhost:8000",
+  //       changeOrigin: true,
+  //       secure: false,
   //     },
   //   },
   // },
+  server: {
+    host: true,
+    port: 5173,
+    proxy: {
+      "/api": "http://nginx_server",
+      "/sanctum": "http://nginx_server",
+    },
+  },
 });
