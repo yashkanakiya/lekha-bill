@@ -108,6 +108,7 @@ function registerHandle() {
               >Enter Name</label
             >
             <InputText
+              id="rg-name"
               v-model="authStore.userData.name"
               type="text"
               class="w-full px-3 py-2 border rounded focus:outline-none focus:ring-1! focus:ring-blue-500!"
@@ -131,6 +132,7 @@ function registerHandle() {
               >Enter Email</label
             >
             <InputText
+              id="rg-email"
               v-model="authStore.userData.email"
               type="email"
               class="w-full px-3 py-2 border rounded focus:outline-none focus:ring-1! focus:ring-blue-500!"
@@ -154,6 +156,7 @@ function registerHandle() {
               >Password</label
             >
             <Password
+              id="rg-password"
               v-model="authStore.userData.password"
               fluid
               placeholder="Enter password"
@@ -178,6 +181,7 @@ function registerHandle() {
               >Confirm Password</label
             >
             <Password
+              id="rg-confirmPassword"
               v-model="confirmPassword"
               fluid
               placeholder="Enter Confirm password"
@@ -212,6 +216,7 @@ function registerHandle() {
 
           <div>
             <Button
+              id="rg-submit"
               type="submit"
               label="Register"
               :disabled="authStore.isFetching"

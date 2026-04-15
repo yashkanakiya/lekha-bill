@@ -91,6 +91,7 @@ async function loginHandle() {
       <div class="mx-auto w-full max-w-sm lg:w-96">
         <div>
           <img
+            id="logo"
             class="h-10 w-auto"
             src="https://tailwindcss.com/plus-assets/img/logos/mark.svg?color=indigo&shade=600"
             alt="Your Company"
@@ -108,6 +109,7 @@ async function loginHandle() {
                   >Email</label
                 >
                 <InputText
+                  id="login-email"
                   v-model="authStore.userData.email"
                   class="w-full px-3 py-2 border rounded focus:outline-none focus:ring-1! focus:ring-blue-500!"
                   placeholder="Enter your email"
@@ -134,6 +136,7 @@ async function loginHandle() {
                   >Password</label
                 >
                 <Password
+                  id="login-password"
                   v-model="authStore.userData.password"
                   fluid
                   placeholder="Enter your password"
@@ -176,6 +179,7 @@ async function loginHandle() {
 
               <div>
                 <Button
+                  id="login-click"
                   type="submit"
                   :disabled="authStore.isFetching"
                   label="Log in"
