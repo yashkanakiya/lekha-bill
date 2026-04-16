@@ -1,4 +1,4 @@
-import { createMemoryHistory, createRouter } from "vue-router";
+import { createWebHistory, createRouter } from "vue-router";
 
 import { useAuthStore } from "../stores/authStore";
 
@@ -37,69 +37,69 @@ const routes = [
     meta: { requiresAuth: true },
     children: [
       {
-        path: "/",
-        redirect: "/dashboard",
+        path: "",
+        redirect: "dashboard",
       },
       {
-        path: "/dashboard",
+        path: "dashboard",
         name: "Dashboard",
         component: Dashboard,
       },
       // Item
       {
-        path: "/items",
+        path: "items",
         name: "Items",
         component: Items,
       },
       {
-        path: "/create-item",
+        path: "create-item",
         name: "Create-Item",
         component: CreateItem,
       },
       {
-        path: "/edit-item/:id",
+        path: "edit-item/:id",
         name: "Edit-Item",
         component: CreateItem,
       },
       // Customer
       {
-        path: "/customers",
+        path: "customers",
         name: "Customers",
         component: Customers,
       },
       {
-        path: "/create-customer",
+        path: "create-customer",
         name: "Create-Customer",
         component: CreateCustomer,
       },
       {
-        path: "/edit-customer/:id",
+        path: "edit-customer/:id",
         name: "Edit-Customer",
         component: CreateCustomer,
       },
       {
-        path: "/view-customer/:id",
+        path: "view-customer/:id",
         name: "View-Customer",
         component: ViewCustomer,
       },
       // Invoice
       {
-        path: "/invoices",
+        path: "invoices",
         name: "Invoices",
         component: Invoices,
       },
       {
-        path: "/create-invoice",
+        path: "create-invoice",
         name: "Create-Invoice",
         component: CreateInvoice,
       },
       {
-        path: "/edit-invoice/:id",
+        path: "edit-invoice/:id",
         name: "Edit-Invoice",
         component: CreateInvoice,
       },
       {
-        path: "/view-invoice/:id",
+        path: "view-invoice/:id",
         name: "View-Invoice",
         component: ViewInvoice,
       },
@@ -108,10 +108,9 @@ const routes = [
 ];
 
 const router = createRouter({
-  history: createMemoryHistory(),
+  history: createWebHistory(),
   routes,
 });
-
 
 router.beforeEach(async (to) => {
   const authStore = useAuthStore();
@@ -138,6 +137,5 @@ router.beforeEach(async (to) => {
   }
   return true;
 });
-
 
 export { router };

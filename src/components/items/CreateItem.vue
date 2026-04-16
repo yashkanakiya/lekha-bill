@@ -27,8 +27,8 @@ const itemData = ref({
 
 const isEdit = computed(() => router.currentRoute.value.params.id);
 const navLinks = computed(() => [
-  { label: "Items", to: "/items" },
-  { label: isEdit.value ? "Edit item" : "Create item"}
+  { label: "Items", to: "/items", class: "it-bc-parent" },
+  { label: isEdit.value ? "Edit item" : "Create item", class: "it-bc-child"},
 ]);
 
 onMounted(async () => {
@@ -45,6 +45,7 @@ onMounted(async () => {
       }
     } catch (error) {
       console.error("Error fetching item:", error);
+      isLoading.value = false;
     } finally {
       isLoading.value = false;
     }
@@ -59,7 +60,10 @@ const rules = {
     price: {
       required: helpers.withMessage("Price is required", required),
       numeric: helpers.withMessage("Price must be a number", numeric),
-      minValue: helpers.withMessage("Price must be a greater than 0", minValue(0)),
+      minValue: helpers.withMessage(
+        "Price must be a greater than 0",
+        minValue(0),
+      ),
     },
     description: {
       required: helpers.withMessage("Description is required", required),
@@ -69,9 +73,7 @@ const rules = {
 
 const v$ = useVuelidate(rules, { itemData });
 
-const buttonName = computed(() =>
-  isEdit.value ? "Edit" : "Submit",
-);
+const buttonName = computed(() => (isEdit.value ? "Edit" : "Submit"));
 
 async function submitDataFunc() {
   isLoading.value = true;
@@ -156,6 +158,7 @@ async function submitDataFunc() {
               >Item Name</label
             >
             <InputText
+              id="itc-name"
               v-model="itemData.name"
               placeholder="Enter item name"
               class="w-full px-3 py-2 border rounded focus:outline-none focus:ring-1! focus:ring-blue-500!"
@@ -179,6 +182,7 @@ async function submitDataFunc() {
           <div class="mb-4">
             <label class="block py-2 font-bold text-gray-700 mb-1">Price</label>
             <InputNumber
+              id="itc-price"
               v-model="itemData.price"
               class="w-full rounded focus:outline-none focus:ring-1! focus:ring-blue-500!"
               placeholder="Enter item price"
@@ -206,6 +210,7 @@ async function submitDataFunc() {
               >Description</label
             >
             <Textarea
+              id="itc-description"
               v-model="itemData.description"
               class="w-full px-3 py-2 border rounded focus:outline-none focus:ring-1! focus:ring-blue-500!"
               placeholder="Enter item description"
@@ -228,7 +233,7 @@ async function submitDataFunc() {
           <Button
             :label="buttonName"
             :disabled="isLoading"
-            icon= "pi pi-save"
+            icon="pi pi-save"
             type="submit"
             class="px-4 py-2 bg-blue-500! text-white rounded hover:bg-blue-600! focus:outline-none focus:ring-1! focus:ring-blue-500!"
           />

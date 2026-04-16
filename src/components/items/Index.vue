@@ -37,11 +37,13 @@ const itemsOptions = computed(() => {
     {
       label: "Edit",
       icon: "pi pi-pencil",
+      class: "menu-edit",
       command: () => router.push(`/edit-item/${row.id}`),
     },
     {
       label: "Delete",
       icon: "pi pi-trash",
+      class: "menu-delete",
       command: () => {
         showDeleteDialog.value = true;
       },
@@ -85,7 +87,7 @@ const toggle = (event: MouseEvent, row: any) => {
 
 <template>
   <div class="flex items-center justify-between mb-4">
-    <h1 class="text-2xl font-bold mb-4">Item List</h1>
+    <h1 class="text-2xl font-bold mb-4" :data-cy="'itl-title'">Item List</h1>
 
     <Button
       label="Create Item"
@@ -132,10 +134,11 @@ const toggle = (event: MouseEvent, row: any) => {
           <Column field="action" header="Actions" style="width: 25%">
             <template #body="{ data }">
               <i
-                class="pi pi-ellipsis-h cursor-pointer"
+                class="itl-action pi pi-ellipsis-h cursor-pointer"
                 rounded
                 variant="outlined"
                 aria-label="Filter"
+                v-bind:data-cy="`action-${data.id}`"
                 @click="(e) => toggle(e, data)"
               ></i>
             </template>
@@ -165,6 +168,7 @@ const toggle = (event: MouseEvent, row: any) => {
         label="Delete"
         icon="pi pi-trash"
         class="p-button-danger"
+        :data-cy="'cnf-del'"
         @click="confirmDelete"
       />
     </template>

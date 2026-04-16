@@ -35,3 +35,24 @@
 //     }
 //   }
 // }
+
+Cypress.Commands.add("login", () => {
+  cy.session("user-session", () => {
+    cy.visit("/login");
+
+    cy.intercept("GET", "/sanctum/csrf-cookie").as("csrf");
+    cy.intercept("POST", "/api/login").as("login");
+    cy.intercept("GET", "/api/user").as("user");
+
+    cy.get("#login-email").type("admin@vensura.co");
+    cy.get("#login-password").type("vensura@123");
+
+    cy.get("#login-click").click();
+
+    cy.wait("@csrf");
+    cy.wait("@login").its("response.statusCode").should("eq", 200);
+
+    // optional but recommended
+    cy.wait("@user").its("response.statusCode").should("eq", 200);
+  });
+});
