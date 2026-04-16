@@ -5,13 +5,16 @@ describe("Item Create", () => {
   it("Item Create Flow", () => {
     cy.visit("/create-item");
 
-    cy.get("#itc-name").type("Item one")
-    cy.get("#itc-price").type(5000)
-    cy.get("#itc-description").type("This is Item one")
+    cy.get('[data-cy="itc-title"]');
+    cy.contains("Create Item");
 
-    cy.contains("Submit").click()
-    cy.intercept("POST", "/api/items").as("Create-Item")
-    cy.wait("@Create-Item")
+    cy.get("#itc-name").type("Item one");
+    cy.get("#itc-price").type(5000);
+    cy.get("#itc-description").type("This is Item one");
+
+    cy.get('[data-cy="itc-btn"]').click();
+    cy.intercept("POST", "/api/items").as("Create-Item");
+    cy.wait("@Create-Item");
 
     cy.url().should("eq", "http://localhost:5173/items");
   });
@@ -23,7 +26,7 @@ describe("Item Create", () => {
     cy.get("#itc-price").type(-1);
     cy.get("#itc-description").type(" ");
 
-    cy.contains("Submit").click();;
+    cy.get('[data-cy="itc-btn"]').click();
   });
 
 });

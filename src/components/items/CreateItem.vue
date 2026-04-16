@@ -118,7 +118,7 @@ async function submitDataFunc() {
 
 <template>
   <div class="flex items-center justify-between mb-4">
-    <h1 class="text-2xl font-bold mb-4">
+    <h1 class="text-2xl font-bold mb-4" :data-cy="'itc-title'">
       {{ isEdit ? "Edit Item" : "Create Item" }}
     </h1>
   </div>
@@ -231,6 +231,7 @@ async function submitDataFunc() {
             </div>
           </div>
           <Button
+            :data-cy="'itc-btn'"
             :label="buttonName"
             :disabled="isLoading"
             icon="pi pi-save"
