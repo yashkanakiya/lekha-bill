@@ -100,6 +100,7 @@ const toggle = (event: MouseEvent, row: any) => {
     <template #content>
       <div v-if="items.length">
         <DataTable
+        data-cy="it-table"
           :value="items"
           stripedRows
           :loading="loading"
