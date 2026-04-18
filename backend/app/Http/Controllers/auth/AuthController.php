@@ -57,12 +57,14 @@ class AuthController extends Controller
             ], 403);
         }
 
-        // Regenerate session
-        $request->session()->regenerate();
+        // // Regenerate session
+        // $request->session()->regenerate();
+        $token = $user->createToken('api-token')->plainTextToken;
 
         return response()->json([
             'message' => 'Login successful',
-            'user' => $user
+            'user' => $user,
+            'token' => $token
         ]);
     }
 
