@@ -27,8 +27,8 @@ const itemData = ref({
 
 const isEdit = computed(() => router.currentRoute.value.params.id);
 const navLinks = computed(() => [
-  { label: "Items", to: "/items", class: "it-bc-parent" },
-  { label: isEdit.value ? "Edit item" : "Create item", class: "it-bc-child"},
+  { label: "Items", to: "/items", class: "itc-bc-parent" },
+  { label: isEdit.value ? "Edit item" : "Create item", class: "itc-bc-child" },
 ]);
 
 onMounted(async () => {
@@ -89,7 +89,6 @@ async function submitDataFunc() {
         await itemStore.addItem(itemData.value);
       }
       isLoading.value = false;
-      router.push("/items");
       toast.add({
         severity: "success",
         summary: isEdit.value ? "Item Updated" : "Item Created",
@@ -98,10 +97,11 @@ async function submitDataFunc() {
           : "Item Created Successfully",
         life: 3000,
       });
+      router.push("/items");
     } catch (error: any) {
       console.error("Error submitting item data:", error);
       toast.add({
-        severity: "warn",
+        severity: "error",
         summary: isEdit.value ? "Item Updated" : "Item Created",
         detail:
           error.response.data.message || isEdit.value
@@ -154,11 +154,13 @@ async function submitDataFunc() {
       <div class="container mx-auto p-4">
         <form @submit.prevent="submitDataFunc">
           <div class="mb-4">
-            <label class="block py-2 font-bold text-gray-700 mb-1"
+            <label
+              class="block py-2 font-bold text-gray-700 mb-1"
+              id="itc-name-title"
               >Item Name</label
             >
             <InputText
-              id="itc-name"
+              data-cy="itc-name"
               v-model="itemData.name"
               placeholder="Enter item name"
               class="w-full px-3 py-2 border rounded focus:outline-none focus:ring-1! focus:ring-blue-500!"
@@ -180,9 +182,13 @@ async function submitDataFunc() {
           </div>
 
           <div class="mb-4">
-            <label class="block py-2 font-bold text-gray-700 mb-1">Price</label>
+            <label
+              class="block py-2 font-bold text-gray-700 mb-1"
+              id="itc-price-title"
+              >Price</label
+            >
             <InputNumber
-              id="itc-price"
+              data-cy="itc-price"
               v-model="itemData.price"
               class="w-full rounded focus:outline-none focus:ring-1! focus:ring-blue-500!"
               placeholder="Enter item price"
@@ -206,11 +212,13 @@ async function submitDataFunc() {
           </div>
 
           <div class="mb-4">
-            <label class="block py-2 font-bold text-gray-700 mb-1"
+            <label
+              class="block py-2 font-bold text-gray-700 mb-1"
+              id="itc-description-title"
               >Description</label
             >
             <Textarea
-              id="itc-description"
+              data-cy="itc-description"
               v-model="itemData.description"
               class="w-full px-3 py-2 border rounded focus:outline-none focus:ring-1! focus:ring-blue-500!"
               placeholder="Enter item description"
@@ -231,7 +239,7 @@ async function submitDataFunc() {
             </div>
           </div>
           <Button
-            :data-cy="'itc-btn'"
+            data-cy="itc-submit"
             :label="buttonName"
             :disabled="isLoading"
             icon="pi pi-save"

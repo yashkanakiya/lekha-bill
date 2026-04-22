@@ -27,8 +27,11 @@ const customerData = ref({
 
 const isEdit = computed(() => router.currentRoute.value.params.id);
 const navLinks = computed(() => [
-  { label: "Customers", to: "/customers" },
-  { label: isEdit.value ? "Edit Customer" : "Create Customer" },
+  { label: "Customers", to: "/customers", class: "ctc-bc-parent" },
+  {
+    label: isEdit.value ? "Edit Customer" : "Create Customer",
+    class: "ctc-bc-child",
+  },
 ]);
 
 onMounted(async () => {
@@ -93,23 +96,20 @@ async function submitDataFunc() {
       await customerStore.addCustomer(customerData.value);
     }
     isLoading.value = false;
-    router.push("/customers");
     toast.add({
       severity: "success",
       summary: isEdit.value ? "Customer Updated" : "Customer Created",
       detail: isEdit.value
-        ? "Customer Updated Successfully"
-        : "Customer Created Successfully",
+      ? "Customer Updated Successfully"
+      : "Customer Created Successfully",
       life: 3000,
     });
+    router.push("/customers");
   } catch (error: any) {
     toast.add({
-      severity: "warn",
+      severity: "error",
       summary: isEdit.value ? "Customer Updated" : "Customer Created",
-      detail:
-        error.response.data.message || isEdit.value
-          ? "Customer update failed."
-          : "Customer creation failed.",
+      detail: error.response.data.message || "Failed",
       life: 3000,
     });
   } finally {
@@ -120,7 +120,7 @@ async function submitDataFunc() {
 
 <template>
   <div class="flex items-center justify-between mb-4">
-    <h1 class="text-2xl font-bold mb-4">
+    <h1 class="text-2xl font-bold mb-4" data-cy="ctc-title">
       {{ isEdit ? "Edit Customer" : "Create Customer" }}
     </h1>
   </div>
@@ -156,10 +156,13 @@ async function submitDataFunc() {
       <div class="container mx-auto p-4">
         <form @submit.prevent="submitDataFunc">
           <div class="mb-4">
-            <label class="block py-2 font-bold text-gray-700 mb-1"
+            <label
+              class="block py-2 font-bold text-gray-700 mb-1"
+              id="ctc-name-title"
               >Customer Name</label
             >
             <InputText
+              data-cy="ctc-name"
               v-model="customerData.name"
               placeholder="Enter customer name"
               class="w-full px-3 py-2 border rounded focus:outline-none focus:ring-1! focus:ring-blue-500!"
@@ -181,8 +184,13 @@ async function submitDataFunc() {
           </div>
 
           <div class="mb-4">
-            <label class="block py-2 font-bold text-gray-700 mb-1">Email</label>
+            <label
+              class="block py-2 font-bold text-gray-700 mb-1"
+              id="ctc-email-title"
+              >Email</label
+            >
             <InputText
+              data-cy="ctc-email"
               v-model="customerData.email"
               class="w-full px-3 py-2 border rounded focus:outline-none focus:ring-1! focus:ring-blue-500!"
               placeholder="Enter customer email"
@@ -205,8 +213,13 @@ async function submitDataFunc() {
           </div>
 
           <div class="mb-4">
-            <label class="block py-2 font-bold text-gray-700 mb-1">Phone</label>
+            <label
+              class="block py-2 font-bold text-gray-700 mb-1"
+              id="ctc-phone-title"
+              >Phone</label
+            >
             <InputText
+              data-cy="ctc-phone"
               v-model="customerData.phone"
               class="w-full px-3 py-2 border rounded focus:outline-none focus:ring-1! focus:ring-blue-500!"
               placeholder="Enter customer phone"
@@ -229,10 +242,13 @@ async function submitDataFunc() {
           </div>
 
           <div class="mb-4">
-            <label class="block py-2 font-bold text-gray-700 mb-1"
+            <label
+              class="block py-2 font-bold text-gray-700 mb-1"
+              id="ctc-address-title"
               >Address</label
             >
             <Textarea
+              data-cy="ctc-address"
               v-model="customerData.address"
               class="w-full px-3 py-2 border rounded focus:outline-none focus:ring-1! focus:ring-blue-500!"
               placeholder="Enter customer address"
@@ -253,6 +269,7 @@ async function submitDataFunc() {
             </div>
           </div>
           <Button
+            data-cy="ctc-submit"
             :label="buttonName"
             :disabled="isLoading"
             icon="pi pi-save"

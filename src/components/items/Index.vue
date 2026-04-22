@@ -135,7 +135,7 @@ const toggle = (event: MouseEvent, row: any) => {
           <Column field="action" header="Actions" style="width: 25%">
             <template #body="{ data }">
               <i
-                class="itl-action pi pi-ellipsis-h cursor-pointer"
+                class="pi pi-ellipsis-h cursor-pointer"
                 rounded
                 variant="outlined"
                 aria-label="Filter"

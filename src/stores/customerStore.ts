@@ -22,27 +22,17 @@ export const useCustomerStore = defineStore("customer", {
         });
     },
 
-    addCustomer(params: any) {
-      api
-        .post("/customers", params)
-        .then((response) => {
-          this.customers.push(response.data);
-        })
-        .catch((error) => {
-          console.error("Error adding customer:", error);
-        });
+    async addCustomer(params: any) {
+      const response = await api.post("/customers", params);
+      this.customers.push(response.data);
+      return response.data;
     },
 
-    updateCustomer(id: any, params: any) {
-      api
-        .put(`/customers/${id}`, params)
-        .then((response) => {
-          const index = this.customers.findIndex((c) => c.id === id);
-          if (index !== -1) this.customers[index] = response.data;
-        })
-        .catch((error) => {
-          console.error("Error updating customer:", error);
-        });
+    async updateCustomer(id: any, params: any) {
+      const response = await api.put(`/customers/${id}`, params);
+      const index = this.customers.findIndex((c) => c.id === id);
+      if (index !== -1) this.customers[index] = response.data;
+      return response.data;
     },
 
     async fetchCustomer(id: any) {
