@@ -1,11 +1,10 @@
 describe("Item Index", () => {
   beforeEach(() => {
     cy.login();
+    cy.visit("/create-customer");
   });
 
   it("Customer Create Flow", () => {
-    cy.visit("/create-customer");
-
     cy.intercept("POST", "/api/customers").as("create-customer");
     cy.intercept("GET", "/api/user").as("user");
     cy.wait("@user");
@@ -40,7 +39,6 @@ describe("Item Index", () => {
   });
 
   it("Customer Create with existing email Flow", () => {
-    cy.visit("/create-customer");
     cy.intercept("POST", "/api/customers").as("create-customer");
 
     cy.intercept("GET", "/api/user").as("user");
@@ -69,10 +67,7 @@ describe("Item Index", () => {
     cy.url().should("eq", "http://localhost:5173/create-customer");
   });
 
-
   it("Customer Create with blank data", () => {
-    cy.visit("/create-customer");
-
     cy.intercept("GET", "/api/user").as("user");
     cy.wait("@user");
 
@@ -90,9 +85,7 @@ describe("Item Index", () => {
     cy.get('[data-cy="ctc-phone"]').type("asdasd");
 
     cy.get("#ctc-address-title").contains("Address");
-    cy.get('[data-cy="ctc-address"]').type(
-      " ",
-    );
+    cy.get('[data-cy="ctc-address"]').type(" ");
 
     cy.get('[data-cy="ctc-submit"]').click();
     cy.url().should("eq", "http://localhost:5173/create-customer");

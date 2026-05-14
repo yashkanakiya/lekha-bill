@@ -1,10 +1,11 @@
 describe("Item Index", () => {
+  
   beforeEach(() => {
     cy.login();
-  });
-  it("Item Index Flow", () => {
     cy.visit("/items");
+  });
 
+  it("Item Index Flow", () => {
     cy.intercept("GET", "/api/items").as("List-Item");
     cy.wait("@List-Item");
 
@@ -31,12 +32,12 @@ describe("Item Index", () => {
   });
 
   it("should show 10 rows by default", () => {
-    cy.visit("/items");
+
     cy.get('[data-cy="it-table"] tbody tr').should("have.length", 10);
   });
 
   it("should change rows per page to 20", () => {
-    cy.visit("/items");
+
     // open dropdown
     cy.get(".p-select-dropdown").click();
 
@@ -48,7 +49,7 @@ describe("Item Index", () => {
   });
 
   it("should go to next page", () => {
-    cy.visit("/items");
+
     // capture first row text before
     cy.get('[data-cy="it-table"] tbody tr:first')
       .invoke("text")
@@ -66,7 +67,7 @@ describe("Item Index", () => {
   });
 
   it("should go back to previous page", () => {
-    cy.visit("/items");
+
     cy.get(".p-paginator-next").click();
     cy.get(".p-paginator-prev").click();
 

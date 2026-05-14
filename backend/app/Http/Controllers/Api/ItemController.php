@@ -36,7 +36,7 @@ class ItemController extends Controller
         $validated = $request->validate([
             'name' => 'required|string',
             'price' => 'required|numeric',
-            'description' => 'nullable|string'
+            'description' => 'nullable|string|max:255'
         ]);
 
         $item->update($validated);
